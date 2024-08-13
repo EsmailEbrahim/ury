@@ -6,7 +6,7 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 from erpnext.controllers.queries import item_query
-from ury.ury_pos.api import getBranch
+from ury.ury_pos.api import getBranch, getBranchRoom
 from frappe import cache
 
 
@@ -339,11 +339,14 @@ def get_restaurant_and_menu_name(table):
 
 @frappe.whitelist()
 def pos_opening_check():
-    branch = getBranch()
+    
+    branch,room = getBranchRoom()
+
     pos_opening_list = frappe.get_all(
         "POS Opening Entry",
-        filters={"branch": branch, "status": "Open", "docstatus": 1},
+        filters={"branch": branch, "custom_room":room, "status": "Open", "docstatus": 1},
     )
+    
     result = {
         "opening_exists": len(pos_opening_list) > 0,
         "cashier": None,
@@ -357,7 +360,7 @@ def pos_opening_check():
             opening_entry.user
         )  # Fetch values from POS Profile linked to POS Opening Entry
         result["pos_profile"] = opening_entry.pos_profile
-
+        
     return result
 
 

@@ -121,6 +121,29 @@ def getBranch():
 
     return branch_name
 
+@frappe.whitelist()
+def getBranchRoom():
+    user = frappe.session.user
+    sql_query = """
+        SELECT b.branch , a.room
+        FROM `tabURY User` AS a
+        INNER JOIN `tabBranch` AS b ON a.parent = b.name
+        WHERE a.user = %s
+    """
+    branch_array = frappe.db.sql(sql_query, user, as_dict=True)
+    
+    branch_name = branch_array[0].get("branch")
+    room_name = branch_array[0].get("room")
+    frappe.throw(frappe.as_json(room_name))
+
+    if not branch_name:
+        frappe.throw("Branch information is missing for the user. Please contact your administrator.")
+
+    if not room_name:
+        frappe.throw("No room assigned to this user. Please contact your administrator.")
+
+    return branch_name,room_name
+
 
 @frappe.whitelist()
 def getModeOfPayment():
