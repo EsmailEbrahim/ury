@@ -11,6 +11,7 @@
   "image",
   "company",
   "invoice_series_prefix",
+  "aggregator_series_prefix",
   "column_break_4",
   "address",
   "branch",
@@ -101,11 +102,16 @@
    "label": "Default Room",
    "options": "URY Room",
    "reqd": 1
+  },
+  {
+   "fieldname": "aggregator_series_prefix",
+   "fieldtype": "Data",
+   "label": "Aggregator Series Prefix"
   }
  ],
  "image_field": "image",
  "links": [],
- "modified": "2024-05-01 19:55:53.124596",
+ "modified": "2024-08-13 12:54:39.805562",
  "modified_by": "Administrator",
  "module": "URY",
  "name": "URY Restaurant",

@@ -107,42 +107,43 @@ def getRestaurantMenu(pos_profile, table=None):
 @frappe.whitelist()
 def getBranch():
     user = frappe.session.user
-    sql_query = """
-        SELECT b.branch
-        FROM `tabURY User` AS a
-        INNER JOIN `tabBranch` AS b ON a.parent = b.name
-        WHERE a.user = %s
-    """
-    branch_array = frappe.db.sql(sql_query, user, as_dict=True)
-    if not branch_array:
-        frappe.throw("User is not Associated with any Branch.Please refresh Page")
+    if user != "Administrator":
+        sql_query = """
+            SELECT b.branch
+            FROM `tabURY User` AS a
+            INNER JOIN `tabBranch` AS b ON a.parent = b.name
+            WHERE a.user = %s
+        """
+        branch_array = frappe.db.sql(sql_query, user, as_dict=True)
+        if not branch_array:
+            frappe.throw("User is not Associated with any Branch.Please refresh Page")
 
-    branch_name = branch_array[0].get("branch")
+        branch_name = branch_array[0].get("branch")
 
-    return branch_name
+        return branch_name
 
 @frappe.whitelist()
 def getBranchRoom():
     user = frappe.session.user
-    sql_query = """
-        SELECT b.branch , a.room
-        FROM `tabURY User` AS a
-        INNER JOIN `tabBranch` AS b ON a.parent = b.name
-        WHERE a.user = %s
-    """
-    branch_array = frappe.db.sql(sql_query, user, as_dict=True)
+    if user != "Administrator":
+        sql_query = """
+            SELECT b.branch , a.room
+            FROM `tabURY User` AS a
+            INNER JOIN `tabBranch` AS b ON a.parent = b.name
+            WHERE a.user = %s
+        """
+        branch_array = frappe.db.sql(sql_query, user, as_dict=True)
+        
+        branch_name = branch_array[0].get("branch")
+        room_name = branch_array[0].get("room")
     
-    branch_name = branch_array[0].get("branch")
-    room_name = branch_array[0].get("room")
-    frappe.throw(frappe.as_json(room_name))
+        if not branch_name:
+            frappe.throw("Branch information is missing for the user. Please contact your administrator.")
 
-    if not branch_name:
-        frappe.throw("Branch information is missing for the user. Please contact your administrator.")
+        if not room_name:
+            frappe.throw("No room assigned to this user. Please contact your administrator.")
 
-    if not room_name:
-        frappe.throw("No room assigned to this user. Please contact your administrator.")
-
-    return branch_name,room_name
+        return branch_name,room_name
 
 
 @frappe.whitelist()
@@ -180,6 +181,7 @@ def getPosInvoice(status):
                 "status",
                 "posting_date",
                 "rounded_total",
+                "order_type"
             ),
             filters={"branch": branchName, "status": status},
             order_by="modified desc",
@@ -232,7 +234,7 @@ def getPosInvoice(status):
                 "customer",
                 "status",
                 "posting_date",
-                "rounded_total",
+                "rounded_total","order_type"
             ),
             filters={"branch": branchName, "status": status},
             order_by="modified desc",
@@ -240,6 +242,7 @@ def getPosInvoice(status):
         for invoice in pos_invoice:
             updated_list.append(invoice)
     return updated_list
+
 
 
 @frappe.whitelist()
@@ -373,3 +376,56 @@ def posOpening():
     if flag == 1:
         frappe.msgprint(title="Message", indicator="red", msg=("Please Open POS Entry"))
     return flag
+
+
+@frappe.whitelist()
+def getAggregator():
+    branchName = getBranch()
+    aggregatorList = frappe.get_all(
+        "Aggregator Settings",
+        fields=["customer"],
+        filters={"parent": branchName, "parenttype": "Branch"},
+    )
+    return aggregatorList
+
+
+@frappe.whitelist()
+def getAggregatorItem(aggregator):
+    branchName = getBranch()
+    aggregatorItem = []
+    aggregatorItemList = []
+    priceList = frappe.db.get_value(
+        "Aggregator Settings",
+        {"customer": aggregator, "parent": branchName, "parenttype": "Branch"},
+        "price_list",
+    )
+    aggregatorItem = frappe.get_all(
+        "Item Price",
+        fields=["item_code", "item_name", "price_list_rate"],
+        filters={"selling": 1, "price_list": priceList},
+    )
+    aggregatorItemList = [
+        {
+            "item": item.item_code,
+            "item_name": item.item_name,
+            "rate": item.price_list_rate,
+            "item_imgae": frappe.db.get_value("Item", item.item, "image"),
+        }
+        for item in aggregatorItem
+    ]
+    return aggregatorItemList
+
+@frappe.whitelist()
+def getAggregatorMOP(aggregator):
+    branchName = getBranch()
+    
+    modeOfPayment = frappe.db.get_value(
+        "Aggregator Settings",
+        {"customer": aggregator, "parent": branchName, "parenttype": "Branch"},
+        "mode_of_payments",
+    )
+    modeOfPaymentsList = []
+    modeOfPaymentsList.append(
+            {"mode_of_payment": modeOfPayment, "opening_amount": float(0)}
+    )
+    return modeOfPaymentsList

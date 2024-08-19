@@ -65,6 +65,7 @@ def get_order_invoice(table=None, invoiceNo=None, is_payment=None):
         )
 
     else:
+
         if is_payment == "Payments":
             invoice_name = frappe.get_value(
                 "POS Invoice", dict(restaurant_table=table, docstatus=0, name=invoiceNo)
@@ -80,6 +81,7 @@ def get_order_invoice(table=None, invoiceNo=None, is_payment=None):
             invoice = frappe.new_doc("POS Invoice")
             invoice.is_pos = 1
             invoice.update_stock = 1
+        
         invoice.taxes_and_charges = frappe.db.get_value(
             "POS Profile", invoice.pos_profile, "taxes_and_charges"
         )
@@ -106,14 +108,18 @@ def sync_order(
     invoice=None,
     comments=None,
     order_type=None,
+    aggregator_id=None,
 ):
     """Sync the sales order related to the table"""
+    
     user_role = frappe.get_roles()
     posprofile = frappe.get_doc("POS Profile", pos_profile)
+    
     billing_user = any(
         role.role in user_role for role in posprofile.role_allowed_for_billing
     )
 
+    # Check if the last invoice was already billed
     if (
         last_invoice
         and frappe.db.get_value("POS Invoice", last_invoice, "invoice_printed") == 1
@@ -171,7 +177,6 @@ def sync_order(
             return {"status": "Failure"}
 
     invoice.customer = customer
-
     if order_type:
         invoice.order_type = order_type
 
@@ -183,7 +188,16 @@ def sync_order(
     invoice.cashier = cashier
     invoice.waiter = waiter
     invoice.restaurant_table = table
-    price_list = invoice.selling_price_list
+    
+    if order_type == "Aggregators":
+        price_list = frappe.db.get_value(
+            "Aggregator Settings",
+            {"customer": customer, "parent": invoice.branch, "parenttype": "Branch"},
+            "price_list",
+        )
+        
+    else:
+        price_list = invoice.selling_price_list
 
     # dummy payment
     if invoice.invoice_created == 0:
@@ -208,59 +222,37 @@ def sync_order(
     # - 'ury_pos': Already formatted list, hence using else
     if isinstance(items, str):
         items = json.loads(items)
-        invoice.items = []
-        for d in items:
-            invoice.append(
-                "items",
-                dict(
-                    item_code=d.get("item"),
-                    item_name=d.get("item_name"),
-                    qty=d.get("qty"),
-                    comment=d.get("comment"),
-                ),
-            )
-        for item in invoice.items:
-            item_prices = frappe.db.get_list(
-                "Item Price",
-                filters={"item_code": item.item_code, "price_list": price_list},
-                fields=["price_list_rate"],
-            )
+    invoice.items = []
+   
+    for d in items:
+        invoice.append(
+            "items",
+            dict(
+                item_code=d.get("item"),
+                item_name=d.get("item_name"),
+                qty=d.get("qty"),
+                comment=d.get("comment"),
+            ),
+        )
+        
+
+    for item in invoice.items:   
+        item_prices = frappe.db.get_list(
+            "Item Price",
+            filters={"item_code": item.item_code, "price_list": price_list},
+            fields=["price_list_rate"],
+        )
+        
+        
+        if not item_prices:
+            frappe.throw(_("POS Profile Not Found or User permission in POS Profile is not given to this user."))
+        else:
             item.rate = item_prices[0].price_list_rate
             item.cost_center = frappe.db.get_value(
                 "POS Profile", pos_profile, "cost_center"
             )
 
-        invoice.save()
-
-    else:
-        invoice.items = []
-        for d in items:
-            invoice.append(
-                "items",
-                dict(
-                    item_code=d.get("item"),
-                    item_name=d.get("item_name"),
-                    qty=d.get("qty"),
-                    comment=d.get("comment"),
-                ),
-            )
-
-        for item in invoice.items:
-            item_prices = frappe.db.get_list(
-                "Item Price",
-                filters={"item_code": item.item_code, "price_list": price_list},
-                fields=["price_list_rate"],
-            )
-            
-            if not item_prices:
-                frappe.throw(_("POS Profile Not Found or User permission in POS Profile is not given to this user."))
-            else:
-                item.rate = item_prices[0].price_list_rate
-                item.cost_center = frappe.db.get_value(
-                    "POS Profile", pos_profile, "cost_center"
-                )
-
-        invoice.save()
+    invoice.save()
 
     try:
         apps = frappe.get_single("Installed Applications").installed_applications
@@ -339,6 +331,15 @@ def get_restaurant_and_menu_name(table):
 
 @frappe.whitelist()
 def pos_opening_check():
+    
+    user = frappe.session.user
+    # Handle the administrator case differently
+    if user == "Administrator":
+        return {
+            "opening_exists": False,  # Assuming no POS opening entry is needed for Administrator
+            "cashier": None,
+            "pos_profile": None,
+        }
     
     branch,room = getBranchRoom()
 
