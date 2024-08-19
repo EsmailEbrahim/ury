@@ -18,7 +18,6 @@
    "options": "User"
   },
   {
-   "default": "0",
    "fieldname": "room",
    "fieldtype": "Link",
    "label": "Room",
@@ -28,7 +27,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-06-11 11:37:52.416676",
+ "modified": "2024-08-19 18:30:54.832691",
  "modified_by": "Administrator",
  "module": "URY",
  "name": "URY User",

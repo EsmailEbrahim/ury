@@ -109,6 +109,7 @@ def sync_order(
     comments=None,
     order_type=None,
     aggregator_id=None,
+    room=None
 ):
     """Sync the sales order related to the table"""
     
@@ -187,6 +188,8 @@ def sync_order(
     invoice.pos_profile = pos_profile
     invoice.cashier = cashier
     invoice.waiter = waiter
+    invoice.custom_aggregator_id = aggregator_id
+    invoice.custom_restaurant_room =room
     invoice.restaurant_table = table
     
     if order_type == "Aggregators":

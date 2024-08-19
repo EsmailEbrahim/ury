@@ -284,6 +284,7 @@ fixtures = [
                     "POS Opening Entry-restaurant",
                     "POS Opening Entry-column_break_e3dky",
                     "POS Opening Entry-branch",
+                    "POS Opening Entry-custom_room",
                     "Branch-user",
                     "Branch-custom_aggregator_settings",
                     "Branch-custom_aggregators",
