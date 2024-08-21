@@ -121,7 +121,10 @@ doc_events = {
         "on_trash": "ury.ury.hooks.ury_pos_invoice.on_trash",
     },
     "POS Profile": {"validate": "ury.ury.hooks.ury_pos_profile.validate"},
-    "Sales Invoice": {"before_insert": "ury.ury.hooks.ury_sales_invoice.before_insert"},
+    "Sales Invoice": {
+        "before_insert": "ury.ury.hooks.ury_sales_invoice.before_insert",
+        "on_update":"ury.ury.hooks.ury_sales_invoice.on_update",
+        },
     "Customer": {"before_save": "ury.ury.hooks.ury_customer.before_insert"},
     "Item": {"validate": "ury.ury.hooks.ury_item.validate"},
     "POS Opening Entry": {"validate":"ury.ury.hooks.ury_pos_opening_entry.set_cashier_room"}
