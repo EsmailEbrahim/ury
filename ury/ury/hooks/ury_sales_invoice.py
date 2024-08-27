@@ -5,6 +5,7 @@ def before_insert(doc, method):
     sales_invoice_naming(doc, method)
 
 def on_update(doc,method):
+    # frappe.throw("Hi")
     aggregator_unpaid(doc,method)
     remove_tax(doc,method)
 
@@ -16,12 +17,18 @@ def sales_invoice_naming(doc, method):
         
         if doc.order_type == "Aggregators":
             
-            doc.naming_series = "SINV-" + frappe.db.get_value(
-            "URY Restaurant", restaurant, "aggregator_series_prefix")
+            # Get the aggregator series prefix
+            aggregator_series_prefix = frappe.db.get_value("URY Restaurant", restaurant, "aggregator_series_prefix")
             
-        
+            if aggregator_series_prefix: 
+                doc.naming_series = "SINV-" +  aggregator_series_prefix
+                
+            else: 
+                # Fallback to invoice_series_prefix if aggregator_series_prefix is not available            
+                doc.naming_series = "SINV-" + frappe.db.get_value("URY Restaurant", restaurant, "invoice_series_prefix")
+                      
         else:
-             
+            # Use invoice_series_prefix for non-aggregator orders
             doc.naming_series = "SINV-" + frappe.db.get_value(
                 "URY Restaurant", restaurant, "invoice_series_prefix"
             )
@@ -37,6 +44,13 @@ def remove_tax(doc,method):
     if doc.order_type == "Aggregators" and frappe.db.get_value("Branch", doc.branch , "custom_no_taxes") == 1 :
 
         doc.taxes_and_charges = None
+        
         doc.taxes.clear()
+       # Manually adjust totals
+        # doc.total_taxes_and_charges = 0
+        # doc.grand_total = doc.base_grand_total = doc.net_total
+        # doc.outstanding_amount = doc.grand_total - doc.paid_amount
+        # doc.run_method("validate")
+
         
 

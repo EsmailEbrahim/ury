@@ -199,6 +199,10 @@ def sync_order(
             "price_list",
         )
         
+        if not price_list:
+            frappe.throw(_("Price list is not set for this customer in Aggregator Settings."))
+
+        
     else:
         price_list = invoice.selling_price_list
 
@@ -219,6 +223,7 @@ def sync_order(
             "comments": "",
         }
         past_item.append(previous_item)
+        
 
     # Conditional checking for 'items' type:
     # - 'ury': JSON passed, hence using isinstance
@@ -226,14 +231,20 @@ def sync_order(
     if isinstance(items, str):
         items = json.loads(items)
     invoice.items = []
+    
+    menu = frappe.db.get_value("URY Menu", {"branch": invoice.branch}, "name")
    
     for d in items:
+        
+        course = frappe.db.get_value("URY Menu Item", {"item": d.get("item"),"parent":menu}, "course")
+        
         invoice.append(
             "items",
             dict(
                 item_code=d.get("item"),
                 item_name=d.get("item_name"),
                 qty=d.get("qty"),
+                **({"course": course} if course else {}),
                 comment=d.get("comment"),
             ),
         )
@@ -247,8 +258,9 @@ def sync_order(
         )
         
         
+         # Check if item prices are available
         if not item_prices:
-            frappe.throw(_("POS Profile Not Found or User permission in POS Profile is not given to this user."))
+            frappe.throw(_("Price list is not set for this customer in Aggregator Settings."))
         else:
             item.rate = item_prices[0].price_list_rate
             item.cost_center = frappe.db.get_value(

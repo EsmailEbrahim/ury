@@ -48,6 +48,7 @@ def getRestaurantMenu(pos_profile, table=None):
                     "special_dish": item.special_dish,
                     "disabled": item.disabled,
                     "item_imgae": frappe.db.get_value("Item", item.item, "image"),
+                    "course":item.course,
                 }
                 for item in menu_items
             ]
@@ -87,7 +88,7 @@ def getRestaurantMenu(pos_profile, table=None):
             menu_items = frappe.get_all(
                 "URY Menu Item",
                 filters={"parent": menu},
-                fields=["item", "item_name", "rate", "special_dish", "disabled"],
+                fields=["item", "item_name", "rate", "special_dish", "disabled", "course"],
                 order_by="item_name asc",
             )
             menu_items_with_image = [
@@ -98,6 +99,7 @@ def getRestaurantMenu(pos_profile, table=None):
                     "special_dish": item.special_dish,
                     "disabled": item.disabled,
                     "item_imgae": frappe.db.get_value("Item", item.item, "image"),
+                    "course":item.course,
                 }
                 for item in menu_items
             ]
@@ -429,3 +431,35 @@ def getAggregatorMOP(aggregator):
             {"mode_of_payment": modeOfPayment, "opening_amount": float(0)}
     )
     return modeOfPaymentsList
+
+
+@frappe.whitelist()
+def validate_pos_close(pos_profile): 
+    enable_unclosed_pos_check = frappe.db.get_value("POS Profile",pos_profile,"custom_is_close")
+    
+    if enable_unclosed_pos_check:
+        current_datetime = frappe.utils.now_datetime()
+        start_of_day = current_datetime.replace(hour=5, minute=0, second=0, microsecond=0)
+        
+        if current_datetime > start_of_day:
+            previous_day = start_of_day - timedelta(days=1)
+            
+        else:
+            previous_day = start_of_day
+    
+        unclosed_pos_opening = frappe.db.exists(
+            "POS Opening Entry",
+            {
+                "posting_date": previous_day.date(),
+                "status": "Open",
+                "pos_profile": pos_profile
+            }
+        )
+    
+        if unclosed_pos_opening:
+            return "Failed"
+        
+        return "Success"
+    
+    return "Success"
+
