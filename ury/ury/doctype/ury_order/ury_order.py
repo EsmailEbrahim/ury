@@ -200,8 +200,8 @@ def sync_order(
         
         if not price_list:
             frappe.throw(f"Price list for customer {customer} in branch {invoice.branch} not found in Aggregator Settings.")
-        else:
-            price_list = invoice.selling_price_list
+    else:
+        price_list = invoice.selling_price_list
 
     # dummy payment
     if invoice.invoice_created == 0:
@@ -248,12 +248,12 @@ def sync_order(
         
 
     for item in invoice.items:   
+        
         item_prices = frappe.db.get_list(
             "Item Price",
             filters={"item_code": item.item_code, "price_list": price_list},
             fields=["price_list_rate"],
         )
-        
         
          # Check if item prices are available
         if not item_prices:
@@ -261,6 +261,8 @@ def sync_order(
             
         else:
             item.rate = item_prices[0].price_list_rate
+            item.price_list_rate = item_prices[0].price_list_rate
+            item.base_price_list_rate = item_prices[0].price_list_rate
             item.cost_center = frappe.db.get_value(
                 "POS Profile", pos_profile, "cost_center"
             )
