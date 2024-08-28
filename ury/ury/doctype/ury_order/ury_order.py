@@ -191,20 +191,7 @@ def sync_order(
     invoice.custom_aggregator_id = aggregator_id
     invoice.custom_restaurant_room =room
     invoice.restaurant_table = table
-    
-    if order_type == "Aggregators":
-        price_list = frappe.db.get_value(
-            "Aggregator Settings",
-            {"customer": customer, "parent": invoice.branch, "parenttype": "Branch"},
-            "price_list",
-        )
-        
-        if not price_list:
-            frappe.throw(_("Price list is not set for this customer in Aggregator Settings."))
-
-        
-    else:
-        price_list = invoice.selling_price_list
+    price_list = invoice.selling_price_list
 
     # dummy payment
     if invoice.invoice_created == 0:
@@ -244,7 +231,7 @@ def sync_order(
                 item_code=d.get("item"),
                 item_name=d.get("item_name"),
                 qty=d.get("qty"),
-                **({"course": course} if course else {}),
+                **({"custom_course": course} if course else {}),
                 comment=d.get("comment"),
             ),
         )
@@ -260,7 +247,8 @@ def sync_order(
         
          # Check if item prices are available
         if not item_prices:
-            frappe.throw(_("Price list is not set for this customer in Aggregator Settings."))
+            frappe.throw(_("No item price found for Item: {0} in Price List: {1}. Please check the price list settings.").format(item.item_code, price_list))
+            
         else:
             item.rate = item_prices[0].price_list_rate
             item.cost_center = frappe.db.get_value(

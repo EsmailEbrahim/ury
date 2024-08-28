@@ -115,21 +115,38 @@ def ro_reload_submit(doc, method):
 
 
 def validate_price_list(doc, method):
+        
     if doc.restaurant:
-        room = frappe.db.get_value("URY Table", doc.restaurant_table, "restaurant_room")
-        menu_name = (
-            frappe.db.get_value("URY Restaurant", doc.restaurant, "active_menu")
-            if not frappe.db.get_value(
-                "URY Restaurant", doc.restaurant, "room_wise_menu"
+        if doc.restaurant_table:
+            room = frappe.db.get_value("URY Table", doc.restaurant_table, "restaurant_room")
+            menu_name = (
+                frappe.db.get_value("URY Restaurant", doc.restaurant, "active_menu")
+                if not frappe.db.get_value(
+                    "URY Restaurant", doc.restaurant, "room_wise_menu"
+                )
+                else frappe.db.get_value(
+                    "Menu for Room", {"parent": doc.restaurant, "room": room}, "menu"
+                )
             )
-            else frappe.db.get_value(
-                "Menu for Room", {"parent": doc.restaurant, "room": room}, "menu"
-            )
-        )
 
-        doc.selling_price_list = frappe.db.get_value(
-            "Price List", dict(restaurant_menu=menu_name, enabled=1)
-        )
+            doc.selling_price_list = frappe.db.get_value(
+                "Price List", dict(restaurant_menu=menu_name, enabled=1)
+            )
+        
+        if doc.order_type == "Aggregators":
+            price_list = frappe.db.get_value("Aggregator Settings",
+                {"customer": doc.customer, "parent": doc.branch, "parenttype": "Branch"},
+                "price_list",
+                )
+            
+            if not price_list:
+                frappe.throw(f"Price list for customer {doc.customer} in branch {doc.branch} not found in Aggregator Settings.")
+                
+            doc.selling_price_list = price_list
+            
+        
+        
+    
 
 
 def restrict_existing_order(doc, event):
