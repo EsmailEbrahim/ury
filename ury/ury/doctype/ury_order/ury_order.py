@@ -196,15 +196,12 @@ def sync_order(
     invoice.restaurant_table = table
     
     if order_type == "Aggregators":
-       price_list = frappe.db.get_value("Aggregator Settings",
-            {"customer": doc.customer, "parent": doc.branch, "parenttype": "Branch"},
-            "price_list",
-            )
+        price_list = frappe.db.get_value("Aggregator Settings",{"customer": customer, "parent": invoice.branch, "parenttype": "Branch"},"price_list",)
         
         if not price_list:
-            frappe.throw(f"Price list for customer {doc.customer} in branch {doc.branch} not found in Aggregator Settings.")
-    else:
-        price_list = invoice.selling_price_list
+            frappe.throw(f"Price list for customer {customer} in branch {invoice.branch} not found in Aggregator Settings.")
+        else:
+            price_list = invoice.selling_price_list
 
     # dummy payment
     if invoice.invoice_created == 0:
