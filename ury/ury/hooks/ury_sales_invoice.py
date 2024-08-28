@@ -5,10 +5,8 @@ def before_insert(doc, method):
     sales_invoice_naming(doc, method)
 
 def on_update(doc,method):
-    # frappe.throw("Hi")
     aggregator_unpaid(doc,method)
-    remove_tax(doc,method)
-
+    
 def sales_invoice_naming(doc, method):
     pos_profile = frappe.db.get_value("POS Profile", doc.pos_profile, ["restaurant_prefix", "restaurant"], as_dict=True)
     restaurant = pos_profile.get("restaurant")
