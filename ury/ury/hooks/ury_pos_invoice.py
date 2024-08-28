@@ -114,6 +114,7 @@ def ro_reload_submit(doc, method):
 def validate_price_list(doc, method):
         
     if doc.restaurant:
+        
         if doc.restaurant_table:
             room = frappe.db.get_value("URY Table", doc.restaurant_table, "restaurant_room")
             menu_name = (
@@ -141,10 +142,13 @@ def validate_price_list(doc, method):
                 
             doc.selling_price_list = price_list
             
-        
-        
-    
+        else:
+            menu_name = frappe.db.get_value("URY Restaurant", doc.restaurant, "active_menu") 
 
+            doc.selling_price_list = frappe.db.get_value(
+                "Price List", dict(restaurant_menu=menu_name, enabled=1)
+            )
+            
 
 def restrict_existing_order(doc, event):
     if doc.restaurant_table:

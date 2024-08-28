@@ -86,10 +86,12 @@ def get_order_invoice(table=None, invoiceNo=None, order_type=None, is_payment=No
  
         if (order_type == "Aggregators" and frappe.db.get_value("Branch", branch, "custom_no_taxes") == 0) or order_type != "Aggregators":
             invoice.taxes_and_charges = frappe.db.get_value("URY Restaurant", restaurant, "default_tax_template")
-
-        invoice.selling_price_list = frappe.db.get_value(
-            "POS Profile", invoice.pos_profile, "selling_price_list"
-        )
+            
+        menu_name = frappe.db.get_value("URY Restaurant", restaurant, "active_menu") 
+        
+        # invoice.selling_price_list = frappe.db.get_value(
+        #     "Price List", dict(restaurant_menu=menu_name, enabled=1)
+        # )
 
     return invoice
 
@@ -192,7 +194,17 @@ def sync_order(
     invoice.custom_aggregator_id = aggregator_id
     invoice.custom_restaurant_room =room
     invoice.restaurant_table = table
-    price_list = invoice.selling_price_list
+    
+    if order_type == "Aggregators":
+       price_list = frappe.db.get_value("Aggregator Settings",
+            {"customer": doc.customer, "parent": doc.branch, "parenttype": "Branch"},
+            "price_list",
+            )
+        
+        if not price_list:
+            frappe.throw(f"Price list for customer {doc.customer} in branch {doc.branch} not found in Aggregator Settings.")
+    else:
+        price_list = invoice.selling_price_list
 
     # dummy payment
     if invoice.invoice_created == 0:
