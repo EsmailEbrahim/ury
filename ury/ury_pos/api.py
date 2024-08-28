@@ -437,7 +437,7 @@ def getAggregatorMOP(aggregator):
 
 @frappe.whitelist()
 def validate_pos_close(pos_profile): 
-    enable_unclosed_pos_check = frappe.db.get_value("POS Profile",pos_profile,"custom_is_close")
+    enable_unclosed_pos_check = frappe.db.get_value("POS Profile",pos_profile,"custom_daily_pos_close")
     
     if enable_unclosed_pos_check:
         current_datetime = frappe.utils.now_datetime()

@@ -92,9 +92,6 @@ def pos_invoice_naming(doc, method):
             doc.naming_series = frappe.db.get_value(
                 "URY Restaurant", restaurant, "aggregator_series_prefix"
             )
-            
-            if frappe.db.get_value("Branch", doc.branch , "custom_no_taxes") == 1:
-                doc.taxes_and_charges = None
     
 
 

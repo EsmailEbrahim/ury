@@ -15,7 +15,7 @@ class URYOrder(Document):
 
 
 @frappe.whitelist()
-def get_order_invoice(table=None, invoiceNo=None, is_payment=None):
+def get_order_invoice(table=None, invoiceNo=None, order_type=None, is_payment=None):
     """returns the active invoice linked to the given table"""
 
     if table:
@@ -82,9 +82,10 @@ def get_order_invoice(table=None, invoiceNo=None, is_payment=None):
             invoice.is_pos = 1
             invoice.update_stock = 1
         
-        invoice.taxes_and_charges = frappe.db.get_value(
-            "POS Profile", invoice.pos_profile, "taxes_and_charges"
-        )
+        restaurant,branch = frappe.db.get_value("POS Profile", invoice.pos_profile,["restaurant","branch"])
+ 
+        if (order_type == "Aggregators" and frappe.db.get_value("Branch", branch, "custom_no_taxes") == 0) or order_type != "Aggregators":
+            invoice.taxes_and_charges = frappe.db.get_value("URY Restaurant", restaurant, "default_tax_template")
 
         invoice.selling_price_list = frappe.db.get_value(
             "POS Profile", invoice.pos_profile, "selling_price_list"
@@ -133,7 +134,7 @@ def sync_order(
         )
         return {"status": "Failure"}
 
-    invoice = get_order_invoice(table, invoice)
+    invoice = get_order_invoice(table, invoice,order_type)
 
     if last_invoice and last_modified_time:
         lastModifiedTime = invoice.modified
