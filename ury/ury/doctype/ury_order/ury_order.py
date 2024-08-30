@@ -58,6 +58,8 @@ def get_order_invoice(table=None, invoiceNo=None, order_type=None, is_payment=No
             is_take_away = frappe.db.get_value("URY Table", table, "is_take_away")
             if is_take_away == 1:
                 invoice.order_type = "Take Away"
+            else:
+                invoice.order_type= "Dine In"
 
         invoice.taxes_and_charges = frappe.db.get_value(
             "URY Restaurant", restaurant, "default_tax_template"

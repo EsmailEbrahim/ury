@@ -97,13 +97,16 @@ def pos_invoice_naming(doc, method):
 
 def order_type_update(doc, method):
     if doc.restaurant_table:
-        is_take_away = frappe.db.get_value(
-            "URY Table", doc.restaurant_table, "is_take_away"
-        )
-        if is_take_away == 1:
-            doc.order_type = "Take Away"
-        else:
-            doc.order_type = "Dine In"
+        if not doc.order_type:
+            frappe.throw("Hu")
+            is_take_away = frappe.db.get_value(
+                "URY Table", doc.restaurant_table, "is_take_away"
+            )
+            if is_take_away == 1:
+                doc.order_type = "Take Away"
+            else:
+                doc.order_type = "Dine In"
+    
 
 
 # reload restaurant order page if submitted invoice is open there
