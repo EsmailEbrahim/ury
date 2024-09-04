@@ -1,5 +1,5 @@
 import frappe
-import datetime
+from datetime import datetime
 from frappe.utils import now_datetime, get_time
 
 
@@ -42,20 +42,17 @@ def validate_customer(doc, method):
 def calculate_and_set_times(doc, method):
     doc.arrived_time = doc.creation
 
-    today = datetime.datetime.now()
-    current_time = today.strftime("%H:%M:%S")
-    start_time = frappe.utils.data.get_datetime(doc.arrived_time).time()
-    current_time_obj = datetime.datetime.strptime(current_time, "%H:%M:%S").time()
-
-    minutes = (
-        datetime.datetime.combine(datetime.date.min, current_time_obj)
-        - datetime.datetime.combine(datetime.date.min, start_time)
-    ).total_seconds() / 60
-    hours = int(minutes // 60)
-
-    remaining_minutes = int(minutes % 60)
-    formatted_spend_time = f"{hours}:{remaining_minutes:02d}"
-
+    current_time_str = now()
+    
+    current_time = datetime.strptime(current_time_str, "%Y-%m-%d %H:%M:%S.%f")
+    
+    time_difference = current_time - creation
+    
+    total_seconds = int(time_difference.total_seconds())
+    hours, remainder = divmod(total_seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    
+    formatted_spend_time = f"{hours:02d}:{minutes:02d}:{seconds:02d}"
     doc.total_spend_time = formatted_spend_time
 
 
