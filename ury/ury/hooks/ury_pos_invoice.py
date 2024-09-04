@@ -1,6 +1,6 @@
 import frappe
 from datetime import datetime
-from frappe.utils import now_datetime, get_time
+from frappe.utils import now_datetime, get_time,now
 
 
 def before_insert(doc, method):
@@ -46,7 +46,7 @@ def calculate_and_set_times(doc, method):
     
     current_time = datetime.strptime(current_time_str, "%Y-%m-%d %H:%M:%S.%f")
     
-    time_difference = current_time - creation
+    time_difference = current_time - doc.creation
     
     total_seconds = int(time_difference.total_seconds())
     hours, remainder = divmod(total_seconds, 3600)
