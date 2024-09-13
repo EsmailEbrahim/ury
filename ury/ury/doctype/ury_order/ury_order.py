@@ -276,8 +276,12 @@ def sync_order(
             item.cost_center = frappe.db.get_value(
                 "POS Profile", pos_profile, "cost_center"
             )
+    try:
+        invoice.save()
+    except Exception as e:
+        frappe.throw(_("Error while updtating order",e))
+           
 
-    invoice.save()
 
     try:
         apps = frappe.get_single("Installed Applications").installed_applications
