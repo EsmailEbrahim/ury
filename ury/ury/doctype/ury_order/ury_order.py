@@ -245,37 +245,33 @@ def sync_order(
         
         course = frappe.db.get_value("URY Menu Item", {"item": d.get("item"),"parent":menu}, "course")
         
-        invoice.append(
-            "items",
-            dict(
-                item_code=d.get("item"),
-                item_name=d.get("item_name"),
-                qty=d.get("qty"),
-                **({"custom_course": course} if course else {}),
-                comment=d.get("comment"),
-            ),
-        )
-        
-
-    for item in invoice.items:   
-        
         item_prices = frappe.db.get_list(
             "Item Price",
-            filters={"item_code": item.item_code, "price_list": price_list},
+            filters={"item_code": d.get("item"), "price_list": price_list},
             fields=["price_list_rate"],
         )
-        
-         # Check if item prices are available
+
         if not item_prices:
             frappe.throw(_("No item price found for Item: {0} in Price List: {1}. Please check the price list settings.").format(item.item_code, price_list))
-            
+
         else:
-            item.rate = item_prices[0].price_list_rate
-            item.price_list_rate = item_prices[0].price_list_rate
-            item.base_price_list_rate = item_prices[0].price_list_rate
-            item.cost_center = frappe.db.get_value(
-                "POS Profile", pos_profile, "cost_center"
+            invoice.append(
+                "items",
+                dict(
+                    item_code=d.get("item"),
+                    item_name=d.get("item_name"),
+                    qty=d.get("qty"),
+                    **({"custom_course": course} if course else {}),
+                    comment=d.get("comment"),
+                    rate = item_prices[0].price_list_rate,
+                    price_list_rate = item_prices[0].price_list_rate,
+                    base_price_list_rate = item_prices[0].price_list_rate,
+                    cost_center = frappe.db.get_value(
+                        "POS Profile", pos_profile, "cost_center"
+                        ),
+                ),
             )
+
     try:
         invoice.save()
     except Exception as e:
