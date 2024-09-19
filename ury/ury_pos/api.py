@@ -165,88 +165,74 @@ def getModeOfPayment():
 
 
 @frappe.whitelist()
-def getPosInvoice(status):
-    branchName = getBranch()
-    updated_list = []
+def getPosInvoice(status, limit, limit_start):
+    branch = getBranch()
+    updatedlist = []
+    limit = int(limit)+1
+    limit_start = int(limit_start)
     if status == "Draft":
-        pos_invoice = frappe.get_all(
-            "POS Invoice",
-            fields=(
-                "name",
-                "invoice_printed",
-                "grand_total",
-                "restaurant_table",
-                "cashier",
-                "waiter",
-                "net_total",
-                "posting_time",
-                "total_taxes_and_charges",
-                "customer",
-                "status",
-                "posting_date",
-                "rounded_total",
-                "order_type"
-            ),
-            filters={"branch": branchName, "status": status},
-            order_by="modified desc",
+        invoices = frappe.db.sql(
+            """
+            SELECT 
+                name, invoice_printed, grand_total, restaurant_table, 
+                cashier, waiter, net_total, posting_time, 
+                total_taxes_and_charges, customer, status, 
+                posting_date, rounded_total, order_type 
+            FROM `tabPOS Invoice` 
+            WHERE branch = %s AND status = %s 
+            AND (invoice_printed = 1 OR (invoice_printed = 0 AND COALESCE(restaurant_table, '') = ''))
+            ORDER BY modified desc
+            LIMIT %s OFFSET %s
+            """,
+            (branch, status, limit,limit_start),
+            as_dict=True,
         )
-        for invoice in pos_invoice:
-            if invoice.invoice_printed == 1 or not invoice.restaurant_table:
-                updated_list.append(invoice)
+        updatedlist.extend(invoices)
     elif status == "Unbilled":
-        pos_invoice = frappe.get_all(
-            "POS Invoice",
-            fields=(
-                "name",
-                "invoice_printed",
-                "grand_total",
-                "restaurant_table",
-                "cashier",
-                "waiter",
-                "net_total",
-                "posting_time",
-                "total_taxes_and_charges",
-                "customer",
-                "status",
-                "posting_date",
-                "rounded_total",
-            ),
-            filters={"branch": branchName},
-            order_by="modified desc",
+        
+        docstatus = "Draft"
+        invoices = frappe.db.sql(
+            """
+            SELECT 
+                name, invoice_printed, grand_total, restaurant_table, 
+                cashier, waiter, net_total, posting_time, 
+                total_taxes_and_charges, customer, status, 
+                posting_date, rounded_total, order_type 
+            FROM `tabPOS Invoice` 
+            WHERE branch = %s AND status = %s 
+            AND (invoice_printed = 0 AND restaurant_table IS NOT NULL)
+            ORDER BY modified desc
+            LIMIT %s OFFSET %s
+            """,
+            (branch, docstatus, limit, limit_start),
+            as_dict=True,
         )
-        for invoice in pos_invoice:
-            if (
-                invoice.status == "Draft"
-                and invoice.restaurant_table
-                and invoice.invoice_printed == 0
-            ):
-                updated_list.append(invoice)
-
+        updatedlist.extend(invoices)
     else:
-        pos_invoice = frappe.get_all(
-            "POS Invoice",
-            fields=(
-                "name",
-                "invoice_printed",
-                "grand_total",
-                "restaurant_table",
-                "cashier",
-                "waiter",
-                "net_total",
-                "posting_time",
-                "total_taxes_and_charges",
-                "customer",
-                "status",
-                "posting_date",
-                "rounded_total","order_type"
-            ),
-            filters={"branch": branchName, "status": status},
-            order_by="modified desc",
+        
+        invoices = frappe.db.sql(
+            """
+            SELECT 
+                name, invoice_printed, grand_total, restaurant_table, 
+                cashier, waiter, net_total, posting_time, 
+                total_taxes_and_charges, customer, status, 
+                posting_date, rounded_total, order_type 
+            FROM `tabPOS Invoice` 
+            WHERE branch = %s AND status = %s 
+            ORDER BY modified desc
+            LIMIT %s OFFSET %s
+            """,
+            (branch, status, limit, limit_start),
+            as_dict=True,
         )
-        for invoice in pos_invoice:
-            updated_list.append(invoice)
-    return updated_list
 
+        updatedlist.extend(invoices)
+    if len(updatedlist) == limit:
+            next = True
+            updatedlist.pop()
+    else:
+            next = False   
+    return  { "data":updatedlist,"next":next}
 
 
 @frappe.whitelist()
