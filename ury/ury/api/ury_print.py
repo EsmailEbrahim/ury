@@ -3,7 +3,7 @@ from frappe import _
 
 import os
 
-from PyPDF2 import PdfWriter
+from pypdf import PdfWriter
 
 no_cache = 1
 
