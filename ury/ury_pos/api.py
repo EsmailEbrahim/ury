@@ -245,7 +245,7 @@ def getPosInvoice(status, limit, limit_start):
         )
 
         updatedlist.extend(invoices)
-    if len(updatedlist) == limit:
+    if len(updatedlist) == limit and status != "Recently Paid":
             next = True
             updatedlist.pop()
     else:
