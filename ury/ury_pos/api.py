@@ -208,6 +208,24 @@ def getPosInvoice(status, limit, limit_start):
             as_dict=True,
         )
         updatedlist.extend(invoices)
+    elif status == "Recently Paid":
+        docstatus = "Paid"
+        invoices = frappe.db.sql(
+            """
+            SELECT 
+                name, invoice_printed, grand_total, restaurant_table, 
+                cashier, waiter, net_total, posting_time, 
+                total_taxes_and_charges, customer, status, 
+                posting_date, rounded_total, order_type 
+            FROM `tabPOS Invoice` 
+            WHERE branch = %s AND status = %s 
+            ORDER BY modified desc
+            LIMIT %s OFFSET %s
+            """,
+            (branch, docstatus, limit, limit_start),
+            as_dict=True,
+        )
+        updatedlist.extend(invoices)    
     else:
         
         invoices = frappe.db.sql(
@@ -284,6 +302,7 @@ def getPosProfile():
         tableAttention = pos_profiles.table_attention_time
         get_cashier = frappe.get_doc("POS Profile", pos_profile_name)
         print_format = pos_profiles.print_format
+        paid_limit=pos_profiles.paid_limit
         cashier = get_cashier.applicable_for_users[0].user
         qz_print = pos_profiles.qz_print
         print_type = None
@@ -317,6 +336,7 @@ def getPosProfile():
         "printer": printer,
         "print_type": print_type,
         "tableAttention": tableAttention,
+        "paid_limit":paid_limit
     }
     return invoice_details
 
