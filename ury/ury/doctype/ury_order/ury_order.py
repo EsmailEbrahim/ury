@@ -96,11 +96,11 @@ def get_order_invoice(table=None, invoiceNo=None, order_type=None, is_payment=No
  
         if (order_type == "Aggregators" and frappe.db.get_value("Branch", branch, "custom_no_taxes") == 0) or order_type != "Aggregators":
             invoice.taxes_and_charges = frappe.db.get_value("URY Restaurant", restaurant, "default_tax_template")
-        # menu_name = frappe.db.get_value("URY Restaurant", restaurant, "active_menu") 
+        menu_name = frappe.db.get_value("URY Restaurant", restaurant, "active_menu") 
         
-        # invoice.selling_price_list = frappe.db.get_value(
-        #     "Price List", dict(restaurant_menu=menu_name, enabled=1)
-        # )
+        invoice.selling_price_list = frappe.db.get_value(
+            "Price List", dict(restaurant_menu=menu_name, enabled=1)
+        )
         
 
     return invoice

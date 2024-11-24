@@ -1,5 +1,6 @@
 {
  "actions": [],
+ "allow_import": 1,
  "autoname": "prompt",
  "creation": "2023-09-13 23:42:45.930064",
  "default_view": "List",
@@ -55,7 +56,7 @@
   }
  ],
  "links": [],
- "modified": "2024-01-08 13:31:46.965352",
+ "modified": "2024-11-18 11:20:41.314588",
  "modified_by": "Administrator",
  "module": "URY",
  "name": "URY Menu",
