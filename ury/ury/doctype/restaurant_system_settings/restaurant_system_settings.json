@@ -1,0 +1,107 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-11-22 21:44:40.318416",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "pos_settings_section",
+  "header_section_column",
+  "show_restaurant_name",
+  "show_restaurant_image",
+  "show_system_logo",
+  "tab_section_column",
+  "show_user_name",
+  "show_branch_name",
+  "log_in_section",
+  "haeder_section_column",
+  "show_system_logo_in_header"
+ ],
+ "fields": [
+  {
+   "fieldname": "pos_settings_section",
+   "fieldtype": "Section Break",
+   "label": "POS Settings"
+  },
+  {
+   "fieldname": "header_section_column",
+   "fieldtype": "Column Break",
+   "label": "Header Section"
+  },
+  {
+   "default": "0",
+   "fieldname": "show_restaurant_name",
+   "fieldtype": "Check",
+   "label": "Show Restaurant Name"
+  },
+  {
+   "default": "0",
+   "fieldname": "show_restaurant_image",
+   "fieldtype": "Check",
+   "label": "Show Restaurant Image"
+  },
+  {
+   "default": "0",
+   "fieldname": "show_system_logo",
+   "fieldtype": "Check",
+   "label": "Show System Logo"
+  },
+  {
+   "fieldname": "tab_section_column",
+   "fieldtype": "Column Break",
+   "label": "Tab Section"
+  },
+  {
+   "default": "0",
+   "fieldname": "show_user_name",
+   "fieldtype": "Check",
+   "label": "Show User Name"
+  },
+  {
+   "default": "0",
+   "fieldname": "show_branch_name",
+   "fieldtype": "Check",
+   "label": "Show Branch Name"
+  },
+  {
+   "fieldname": "log_in_section",
+   "fieldtype": "Section Break",
+   "label": "Log In"
+  },
+  {
+   "fieldname": "haeder_section_column",
+   "fieldtype": "Column Break",
+   "label": "Haeder Section"
+  },
+  {
+   "default": "0",
+   "fieldname": "show_system_logo_in_header",
+   "fieldtype": "Check",
+   "label": "Show System Logo"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2024-11-23 00:55:27.705610",
+ "modified_by": "Administrator",
+ "module": "URY",
+ "name": "Restaurant System Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}
