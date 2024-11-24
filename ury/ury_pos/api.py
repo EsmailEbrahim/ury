@@ -285,6 +285,22 @@ def fav_items(customer):
 
 
 @frappe.whitelist()
+def getRestaurantName():
+    branchName = getBranch()
+    posProfile = frappe.db.exists("POS Profile", {"branch": branchName})
+    pos_profile_restaurant_name = frappe.db.get_value("POS Profile", posProfile, "restaurant")
+    pos_profile_restaurant_image = frappe.db.get_value("URY Restaurant", pos_profile_restaurant_name, "image")
+
+    return {"name": pos_profile_restaurant_name, "image": pos_profile_restaurant_image}
+
+
+@frappe.whitelist(allow_guest=True) # Remove the allow_guest
+def getRestaurantSystemSettings():
+    restaurant_system_settings = frappe.get_single("Restaurant System Settings")
+    return restaurant_system_settings.as_dict()
+
+
+@frappe.whitelist()
 def getPosProfile():
     branchName = getBranch()
     waiter = frappe.session.user
