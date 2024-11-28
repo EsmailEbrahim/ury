@@ -6,16 +6,18 @@
  "engine": "InnoDB",
  "field_order": [
   "pos_settings_section",
+  "system_name",
+  "section_break_jfew",
   "header_section_column",
   "show_restaurant_name",
+  "show_system_name_header",
   "show_restaurant_image",
   "show_system_logo",
+  "show_system_name_in_login_header",
+  "show_system_logo_in_header",
   "tab_section_column",
   "show_user_name",
-  "show_branch_name",
-  "log_in_section",
-  "haeder_section_column",
-  "show_system_logo_in_header"
+  "show_branch_name"
  ],
  "fields": [
   {
@@ -64,26 +66,37 @@
    "label": "Show Branch Name"
   },
   {
-   "fieldname": "log_in_section",
-   "fieldtype": "Section Break",
-   "label": "Log In"
-  },
-  {
-   "fieldname": "haeder_section_column",
-   "fieldtype": "Column Break",
-   "label": "Haeder Section"
-  },
-  {
    "default": "0",
    "fieldname": "show_system_logo_in_header",
    "fieldtype": "Check",
-   "label": "Show System Logo"
+   "label": "Show System Logo in Login Header"
+  },
+  {
+   "fieldname": "system_name",
+   "fieldtype": "Data",
+   "label": "System Name"
+  },
+  {
+   "fieldname": "section_break_jfew",
+   "fieldtype": "Section Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "show_system_name_in_login_header",
+   "fieldtype": "Check",
+   "label": "Show System Name in Login Header"
+  },
+  {
+   "default": "0",
+   "fieldname": "show_system_name_header",
+   "fieldtype": "Check",
+   "label": "Show System Name"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2024-11-23 00:55:27.705610",
+ "modified": "2024-11-27 02:09:09.186356",
  "modified_by": "Administrator",
  "module": "URY",
  "name": "Restaurant System Settings",
