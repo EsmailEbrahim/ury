@@ -38,7 +38,7 @@ def getRestaurantMenu(pos_profile, table=None):
             menu_items = frappe.get_all(
                 "URY Menu Item",
                 filters={"parent": menu},
-                fields=["item", "item_name", "rate", "special_dish", "disabled","course"],
+                fields=["item", "item_name", "rate", "special_dish", "disabled","course", "preparation_time", "parallel_preparation"],
                 order_by="item_name asc",
             )
 
@@ -51,6 +51,8 @@ def getRestaurantMenu(pos_profile, table=None):
                     "disabled": item.disabled,
                     "item_imgae": frappe.db.get_value("Item", item.item, "image"),
                     "course":item.course,
+                    "preparation_time": item.preparation_time,
+                    "parallel_preparation": item.parallel_preparation,
                 }
                 for item in menu_items
             ]
@@ -90,7 +92,7 @@ def getRestaurantMenu(pos_profile, table=None):
             menu_items = frappe.get_all(
                 "URY Menu Item",
                 filters={"parent": menu},
-                fields=["item", "item_name", "rate", "special_dish", "disabled", "course"],
+                fields=["item", "item_name", "rate", "special_dish", "disabled", "course", "preparation_time", "parallel_preparation"],
                 order_by="item_name asc",
             )
             menu_items_with_image = [
@@ -102,6 +104,8 @@ def getRestaurantMenu(pos_profile, table=None):
                     "disabled": item.disabled,
                     "item_imgae": frappe.db.get_value("Item", item.item, "image"),
                     "course":item.course,
+                    "preparation_time": item.preparation_time,
+                    "parallel_preparation": item.parallel_preparation,
                 }
                 for item in menu_items
             ]
