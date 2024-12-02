@@ -491,9 +491,15 @@ def cancel_order(invoice_id, reason):
         pass
 
     # Update invoice status
+    # frappe.db.set_value(
+    #     "URY Table",
+    #     pos_invoice.restaurant_table,
+    #     {"docstatus": 2, "status": "Cancelled", "cancel_reason": reason},
+    # )
+    
     frappe.db.set_value(
-        "URY Table",
-        pos_invoice.restaurant_table,
+        "POS Invoice",
+        pos_invoice.name,
         {"docstatus": 2, "status": "Cancelled", "cancel_reason": reason},
     )
    
