@@ -17,7 +17,12 @@
   "show_system_logo_in_header",
   "tab_section_column",
   "show_user_name",
-  "show_branch_name"
+  "show_branch_name",
+  "mosaic_section",
+  "header_section_column_mosaic",
+  "show_system_name_header_mosaic",
+  "show_system_logo_mosaic",
+  "column_break_qguc"
  ],
  "fields": [
   {
@@ -78,7 +83,8 @@
   },
   {
    "fieldname": "section_break_jfew",
-   "fieldtype": "Section Break"
+   "fieldtype": "Section Break",
+   "label": "POS"
   },
   {
    "default": "0",
@@ -91,12 +97,38 @@
    "fieldname": "show_system_name_header",
    "fieldtype": "Check",
    "label": "Show System Name"
+  },
+  {
+   "fieldname": "mosaic_section",
+   "fieldtype": "Section Break",
+   "label": "Mosaic"
+  },
+  {
+   "fieldname": "header_section_column_mosaic",
+   "fieldtype": "Column Break",
+   "label": "Header Section"
+  },
+  {
+   "default": "0",
+   "fieldname": "show_system_name_header_mosaic",
+   "fieldtype": "Check",
+   "label": "Show System Name"
+  },
+  {
+   "default": "0",
+   "fieldname": "show_system_logo_mosaic",
+   "fieldtype": "Check",
+   "label": "Show System Logo"
+  },
+  {
+   "fieldname": "column_break_qguc",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2024-11-27 02:09:09.186356",
+ "modified": "2024-12-06 06:23:52.488907",
  "modified_by": "Administrator",
  "module": "URY",
  "name": "Restaurant System Settings",
