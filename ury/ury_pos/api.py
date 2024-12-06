@@ -298,6 +298,15 @@ def getRestaurantName():
     return {"name": pos_profile_restaurant_name, "image": pos_profile_restaurant_image}
 
 
+@frappe.whitelist()
+def getDefaultCustomer():
+    branchName = getBranch()
+    posProfile = frappe.db.exists("POS Profile", {"branch": branchName})
+    pos_profile_customer = frappe.db.get_value("POS Profile", posProfile, "customer")
+
+    return {'default_customer': pos_profile_customer}
+
+
 @frappe.whitelist(allow_guest=True) # Remove the allow_guest
 def getRestaurantSystemSettings():
     restaurant_system_settings = frappe.get_single("Restaurant System Settings")
