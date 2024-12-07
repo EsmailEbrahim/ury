@@ -9,11 +9,16 @@
   "system_name",
   "section_break_jfew",
   "header_section_column",
+  "name1",
   "show_restaurant_name",
   "show_system_name_header",
+  "logo_image",
+  "show_erpnext_pos_logo",
   "show_restaurant_image",
   "show_system_logo",
+  "login_name_logo",
   "show_system_name_in_login_header",
+  "show_erpnext_pos_logo_login",
   "show_system_logo_in_header",
   "tab_section_column",
   "show_user_name",
@@ -21,6 +26,7 @@
   "mosaic_section",
   "header_section_column_mosaic",
   "show_system_name_header_mosaic",
+  "show_erpnext_mosaic_logo",
   "show_system_logo_mosaic",
   "column_break_qguc"
  ],
@@ -123,12 +129,45 @@
   {
    "fieldname": "column_break_qguc",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "name1",
+   "fieldtype": "Heading",
+   "label": "Name"
+  },
+  {
+   "fieldname": "logo_image",
+   "fieldtype": "Heading",
+   "label": "Logo Image"
+  },
+  {
+   "default": "0",
+   "fieldname": "show_erpnext_pos_logo",
+   "fieldtype": "Check",
+   "label": "Show ERPNext POS Logo"
+  },
+  {
+   "default": "0",
+   "fieldname": "show_erpnext_pos_logo_login",
+   "fieldtype": "Check",
+   "label": "Show ERPNext POS Logo in Login Header"
+  },
+  {
+   "fieldname": "login_name_logo",
+   "fieldtype": "Heading",
+   "label": "Login Name & Logo"
+  },
+  {
+   "default": "0",
+   "fieldname": "show_erpnext_mosaic_logo",
+   "fieldtype": "Check",
+   "label": "Show ERPNext Mosaic Logo"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2024-12-06 06:23:52.488907",
+ "modified": "2024-12-08 01:55:07.611147",
  "modified_by": "Administrator",
  "module": "URY",
  "name": "Restaurant System Settings",
