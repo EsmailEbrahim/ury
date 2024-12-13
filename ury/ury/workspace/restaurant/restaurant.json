@@ -1,0 +1,70 @@
+{
+ "charts": [],
+ "content": "[{\"id\":\"PO4EylCUq0\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Quick Access<br></span>\",\"col\":12}},{\"id\":\"MQntSdP2zl\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"\u0645\u0637\u0639\u0645 \u0646\u0642\u0627\u0637 \u0627\u0644\u0628\u064a\u0639 \",\"col\":3}},{\"id\":\"Cv2WlIG3qd\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"\u0642\u0633\u0645 \u0627\u0644\u0648\u062c\u0628\u0627\u062a\",\"col\":3}},{\"id\":\"gYfKZaJ391\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"\u0642\u0633\u0645 \u0627\u0644\u0639\u0635\u0627\u0626\u0631\",\"col\":3}},{\"id\":\"XUC0EGFe_u\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"3XhkKI6EJA\",\"type\":\"card\",\"data\":{\"card_name\":\"Setup\",\"col\":4}},{\"id\":\"RmWBGqutgb\",\"type\":\"card\",\"data\":{\"card_name\":\"Profile\",\"col\":4}},{\"id\":\"f_UnQ_ImFj\",\"type\":\"card\",\"data\":{\"card_name\":\"Shift\",\"col\":4}},{\"id\":\"J7DiIaHH7E\",\"type\":\"card\",\"data\":{\"card_name\":\"Offers &amp; Coupons\",\"col\":4}},{\"id\":\"VCTWrfn8Od\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"GJtWC-bWwK\",\"type\":\"card\",\"data\":{\"card_name\":\"Kitchens\",\"col\":4}}]",
+ "creation": "2023-11-30 12:04:38.330350",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "milestone",
+ "idx": 0,
+ "indicator_color": "",
+ "is_hidden": 0,
+ "label": "Restaurant",
+ "links": [],
+ "modified": "2024-12-12 15:58:26.115593",
+ "modified_by": "support-r@trilogy.com",
+ "module": "URY",
+ "name": "Restaurant",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [
+  {
+   "role": "URY Captain"
+  },
+  {
+   "role": "URY Restaurant Manager"
+  },
+  {
+   "role": "URY Cashier"
+  },
+  {
+   "role": "URY Barista"
+  },
+  {
+   "role": "URY Kitchen control"
+  },
+  {
+   "role": "URY Kitchen"
+  }
+ ],
+ "sequence_id": 2.0,
+ "shortcuts": [
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "\u0645\u0637\u0639\u0645 \u0646\u0642\u0627\u0637 \u0627\u0644\u0628\u064a\u0639 ",
+   "type": "URL",
+   "url": "https://stage-kf.trilogy-erp.com/urypos/Menu"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "\u0642\u0633\u0645 \u0627\u0644\u0648\u062c\u0628\u0627\u062a",
+   "type": "URL",
+   "url": "https://stage-kf.trilogy-erp.com/URYMosaic/%D9%88%D8%AC%D8%A8%D8%A7%D8%AA"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "\u0642\u0633\u0645 \u0627\u0644\u0639\u0635\u0627\u0626\u0631",
+   "type": "URL",
+   "url": "https://stage-kf.trilogy-erp.com/URYMosaic/%D8%B9%D8%B5%D8%A7%D8%A6%D8%B1"
+  }
+ ],
+ "title": "Restaurant"
+}
