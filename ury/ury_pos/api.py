@@ -3,6 +3,17 @@ from frappe import _
 from datetime import date, datetime, timedelta
 
 
+@frappe.whitelist()
+def get_user_roles(user=None):
+    # Use logged-in user if no user is specified
+    if not user:
+        user = frappe.session.user
+
+    # Get the roles of the specified user
+    roles = frappe.get_roles(user)
+    
+    return roles
+
 
 @frappe.whitelist()
 def getTable(room):
