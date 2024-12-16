@@ -28,7 +28,8 @@
   "show_system_name_header_mosaic",
   "show_erpnext_mosaic_logo",
   "show_system_logo_mosaic",
-  "column_break_qguc"
+  "column_break_qguc",
+  "show_all_kots_when_no_production_unit_entered"
  ],
  "fields": [
   {
@@ -162,12 +163,19 @@
    "fieldname": "show_erpnext_mosaic_logo",
    "fieldtype": "Check",
    "label": "Show ERPNext Mosaic Logo"
+  },
+  {
+   "default": "0",
+   "description": "Check it to enable showing all KOTs when the URL is like: SITE_URL/URYMosaic/",
+   "fieldname": "show_all_kots_when_no_production_unit_entered",
+   "fieldtype": "Check",
+   "label": "Show All KOTs When No Production Unit Entered"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2024-12-08 01:55:07.611147",
+ "modified": "2024-12-17 01:45:23.388370",
  "modified_by": "Administrator",
  "module": "URY",
  "name": "Restaurant System Settings",
