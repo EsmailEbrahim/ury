@@ -23,6 +23,8 @@
   "tab_section_column",
   "show_user_name",
   "show_branch_name",
+  "section_break_cmaz",
+  "show_a_print_preview",
   "mosaic_section",
   "header_section_column_mosaic",
   "show_system_name_header_mosaic",
@@ -170,12 +172,23 @@
    "fieldname": "show_all_kots_when_no_production_unit_entered",
    "fieldtype": "Check",
    "label": "Show All KOTs When No Production Unit Entered"
+  },
+  {
+   "fieldname": "section_break_cmaz",
+   "fieldtype": "Section Break"
+  },
+  {
+   "default": "0",
+   "description": "Check it to enable showing a preview when print an invoice is clicked in POS.",
+   "fieldname": "show_a_print_preview",
+   "fieldtype": "Check",
+   "label": "Show a Print Preview"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2024-12-17 01:45:23.388370",
+ "modified": "2024-12-21 01:32:37.933379",
  "modified_by": "Administrator",
  "module": "URY",
  "name": "Restaurant System Settings",
