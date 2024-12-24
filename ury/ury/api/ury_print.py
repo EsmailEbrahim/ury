@@ -24,7 +24,7 @@ def network_printing(
     file_path=None,
 ):
     try:
-        print_settings = frappe("Network Printer Settings", printer_setting)
+        print_settings = frappe.get_doc("Network Printer Settings", printer_setting)
 
         try:
             import cups
