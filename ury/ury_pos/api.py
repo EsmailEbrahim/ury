@@ -325,11 +325,39 @@ def getRestaurantSystemSettings():
 
 
 @frappe.whitelist()
+def get_cashier_printer_name_from_pos_profile(pos_profile):
+    user = frappe.session.user
+    if user != "Administrator":
+        # SQL query to get the cashier printer name
+        sql_query = """
+            SELECT a.custom_cashier_printer_name, a.custom_cashier_qz_host
+            FROM `tabPOS Profile User` AS a
+            WHERE a.user = %s
+              AND a.parenttype = 'POS Profile'
+              AND a.parentfield = 'applicable_for_users'
+              AND a.parent = %s
+        """
+        printer_array = frappe.db.sql(sql_query, (user, pos_profile), as_dict=True)
+        
+        if not printer_array:
+            frappe.throw("User is not associated with any printer in the specified POS Profile.")
+
+        # Return the first match, as there should be one printer per user per POS Profile
+        cashier_printer_name = printer_array[0].get("custom_cashier_printer_name")
+        cashier_qz_host = printer_array[0].get("custom_cashier_qz_host")
+
+        qz_data = {'custom_cashier_printer_name': cashier_printer_name, 'custom_cashier_qz_host': cashier_qz_host}
+        
+        return qz_data
+
+
+@frappe.whitelist()
 def getPosProfile():
     branchName = getBranch()
     waiter = frappe.session.user
     bill_present = False
     qz_host = None
+    cashier_printer_name = None
     printer = None
     posProfile = frappe.db.exists("POS Profile", {"branch": branchName})
     pos_profiles = frappe.get_doc("POS Profile", posProfile)
@@ -355,7 +383,14 @@ def getPosProfile():
 
         if qz_print == 1:
             print_type = "qz"
-            qz_host = pos_profiles.qz_host
+
+            cashier_qz_data = get_cashier_printer_name_from_pos_profile(pos_profile_name)
+            if cashier_qz_data['custom_cashier_printer_name']:
+                cashier_printer_name = cashier_qz_data['custom_cashier_printer_name']
+            if cashier_qz_data['custom_cashier_qz_host']:
+                qz_host = cashier_qz_data['custom_cashier_qz_host']
+            else:
+                qz_host = pos_profiles.qz_host
 
         elif bill_present == True:
             print_type = "network"
@@ -373,6 +408,7 @@ def getPosProfile():
         "print_format": print_format,
         "qz_print": qz_print,
         "qz_host": qz_host,
+        "cashier_printer_name": cashier_printer_name,
         "printer": printer,
         "print_type": print_type,
         "tableAttention": tableAttention,
