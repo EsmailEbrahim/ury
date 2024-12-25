@@ -101,7 +101,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-12-19 15:32:33.523732",
+ "modified": "2024-12-19 19:04:05.659608",
  "modified_by": "Administrator",
  "module": "URY",
  "name": "URY Table",
@@ -127,7 +127,8 @@
    "read": 1,
    "report": 1,
    "role": "URY Captain",
-   "select": 1
+   "select": 1,
+   "write": 1
   },
   {
    "create": 1,
@@ -137,7 +138,7 @@
    "print": 1,
    "read": 1,
    "report": 1,
-   "role": "URY Manager",
+   "role": "URY Restaurant Manager",
    "select": 1,
    "share": 1,
    "write": 1

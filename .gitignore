@@ -5,3 +5,5 @@
 tags
 ury/docs/current
 node_modules/
+
+ury/public/files/cert.pem
