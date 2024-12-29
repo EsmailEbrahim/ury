@@ -352,12 +352,64 @@ def get_cashier_printer_name_from_pos_profile(pos_profile):
 
 
 @frappe.whitelist()
+def get_cashier_silent_print_format_from_pos_profile(pos_profile):
+    user = frappe.session.user
+    if user != "Administrator":
+        # SQL query to get the cashier silent print format
+        sql_query = """
+            SELECT a.custom_silent_print_format, a.custom_silent_print_type
+            FROM `tabPOS Profile User` AS a
+            WHERE a.user = %s
+              AND a.parenttype = 'POS Profile'
+              AND a.parentfield = 'applicable_for_users'
+              AND a.parent = %s
+        """
+        printer_array = frappe.db.sql(sql_query, (user, pos_profile), as_dict=True)
+        
+        if not printer_array:
+            frappe.throw("User is not associated with any printer in the specified POS Profile.")
+
+        # Return the first match, as there should be one printer per user per POS Profile
+        silent_print_format = printer_array[0].get("custom_silent_print_format")
+        silent_print_type = printer_array[0].get("custom_silent_print_type")
+
+        silent_print_data = {'custom_silent_print_format': silent_print_format, "custom_silent_print_type": silent_print_type}
+        
+        return silent_print_data
+
+
+@frappe.whitelist()
+def get_ury_kot_by_invoice_number(invoice_number):
+
+    ury_kots = frappe.get_all(
+        'URY KOT',
+        filters={'invoice': invoice_number},
+        fields=['name', 'invoice', 'production'],
+    )
+
+    for ury_kot in ury_kots:
+        production_silent_print_format = frappe.db.get_value('URY Production Unit', ury_kot['production'], 'custom_silent_print_format')
+        production_silent_print_type = frappe.db.get_value('URY Production Unit', ury_kot['production'], 'custom_silent_print_type')
+        
+        if production_silent_print_format and production_silent_print_type:
+            ury_kot['production_silent_print_format'] = production_silent_print_format
+            ury_kot['production_silent_print_type'] = production_silent_print_type
+        else:
+            ury_kot['production_silent_print_format'] = None
+            ury_kot['production_silent_print_type'] = None
+    
+    return ury_kots
+
+
+@frappe.whitelist()
 def getPosProfile():
     branchName = getBranch()
     waiter = frappe.session.user
     bill_present = False
     qz_host = None
     cashier_printer_name = None
+    cashier_silent_print_format = None
+    cashier_silent_print_type = None
     printer = None
     posProfile = frappe.db.exists("POS Profile", {"branch": branchName})
     pos_profiles = frappe.get_doc("POS Profile", posProfile)
@@ -373,6 +425,7 @@ def getPosProfile():
         paid_limit=pos_profiles.paid_limit
         cashier = get_cashier.applicable_for_users[0].user
         qz_print = pos_profiles.qz_print
+        silent_print = pos_profiles.custom_silent_print
         print_type = None
 
         for pos_profile in pos_profiles.printer_settings:
@@ -380,8 +433,17 @@ def getPosProfile():
                 printer = pos_profile.printer
                 bill_present = True
                 break
+        
+        if silent_print == 1:
+            print_type = "silent"
 
-        if qz_print == 1:
+            cashier_silent_print_data = get_cashier_silent_print_format_from_pos_profile(pos_profile_name)
+            if cashier_silent_print_data['custom_silent_print_format']:
+                cashier_silent_print_format = cashier_silent_print_data['custom_silent_print_format']
+                # cashier_silent_print_type = frappe.db.get_value("Silent Print Format", cashier_silent_print_format, "default_print_type")
+                cashier_silent_print_type = cashier_silent_print_data['custom_silent_print_type']
+
+        elif qz_print == 1:
             print_type = "qz"
 
             cashier_qz_data = get_cashier_printer_name_from_pos_profile(pos_profile_name)
@@ -409,6 +471,9 @@ def getPosProfile():
         "qz_print": qz_print,
         "qz_host": qz_host,
         "cashier_printer_name": cashier_printer_name,
+        "silent_print": silent_print,
+        "cashier_silent_print_format": cashier_silent_print_format,
+        "cashier_silent_print_type": cashier_silent_print_type,
         "printer": printer,
         "print_type": print_type,
         "tableAttention": tableAttention,
