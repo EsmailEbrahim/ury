@@ -606,6 +606,12 @@ def change_table_in_kot(invoice, new_table, branch):
     # Update each KOT's restaurant_table and send a real-time update
     for kot in kot_list:
         frappe.db.set_value("URY KOT", kot.name, "restaurant_table", new_table)
+
+        custom_branch_in_english = frappe.db.get_value("Branch", branch, "custom_branch_in_english")
+        
         production = frappe.db.get_value("URY KOT", kot.name, "production")
-        kot_channel = "{}_{}_{}".format("kot_update", branch, production)
+        production_in_english = frappe.db.get_value("URY KOT", production, "production_in_english")
+
+        # kot_channel = "{}_{}_{}".format("kot_update", branch, production)
+        kot_channel = "{}_{}_{}".format("kot_update", custom_branch_in_english, production_in_english)
         frappe.publish_realtime(kot_channel)
