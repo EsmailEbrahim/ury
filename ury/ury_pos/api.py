@@ -16,13 +16,37 @@ def get_user_roles(user=None):
 
 
 @frappe.whitelist()
+def get_table_invoice(table):
+    """returns the active invoice linked to the given table"""
+
+    if table:
+        invoice_name = frappe.get_value(
+            "POS Invoice",
+            dict(restaurant_table=table, docstatus=0, invoice_printed=0),
+            ['name', 'custom_is_confirmed']
+        )
+
+        return invoice_name
+
+
+@frappe.whitelist()
 def getTable(room):
     branch_name = getBranch()   
     tables = frappe.get_all(
         "URY Table",
         fields=["name", "occupied", "latest_invoice_time", "is_take_away", "restaurant_room"],
         filters={"branch": branch_name,"restaurant_room":room,}
-    )    
+    )
+
+    for table in tables:
+        table_invoice = get_table_invoice(table.name)
+        if table_invoice:
+            table.table_invoice = table_invoice[0]
+            table.custom_is_confirmed = table_invoice[1]
+        else:
+            table.table_invoice = None
+            table.custom_is_confirmed = 0
+
     return tables
 
 
@@ -203,19 +227,37 @@ def getPosInvoice(status, limit, limit_start):
             as_dict=True,
         )
         updatedlist.extend(invoices)
-    elif status == "Unbilled":
-        
+    elif status == "Unconfirmed":
         docstatus = "Draft"
         invoices = frappe.db.sql(
             """
             SELECT 
-                name, invoice_printed, grand_total, restaurant_table, 
+                name, invoice_printed, custom_is_confirmed, grand_total, restaurant_table, 
                 cashier, waiter, net_total, posting_time, 
                 total_taxes_and_charges, customer, status, 
                 posting_date, rounded_total, order_type 
             FROM `tabPOS Invoice` 
             WHERE branch = %s AND status = %s 
-            AND (invoice_printed = 0 AND restaurant_table IS NOT NULL)
+            AND (invoice_printed = 0 AND restaurant_table IS NOT NULL AND custom_is_confirmed = 0)
+            ORDER BY modified desc
+            LIMIT %s OFFSET %s
+            """,
+            (branch, docstatus, limit, limit_start),
+            as_dict=True,
+        )
+        updatedlist.extend(invoices)
+    elif status == "Unbilled":
+        docstatus = "Draft"
+        invoices = frappe.db.sql(
+            """
+            SELECT 
+                name, invoice_printed, custom_is_confirmed, grand_total, restaurant_table, 
+                cashier, waiter, net_total, posting_time, 
+                total_taxes_and_charges, customer, status, 
+                posting_date, rounded_total, order_type 
+            FROM `tabPOS Invoice` 
+            WHERE branch = %s AND status = %s 
+            AND (invoice_printed = 0 AND restaurant_table IS NOT NULL AND custom_is_confirmed = 1)
             ORDER BY modified desc
             LIMIT %s OFFSET %s
             """,
@@ -379,12 +421,16 @@ def get_cashier_silent_print_format_from_pos_profile(pos_profile):
 
 
 @frappe.whitelist()
-def get_ury_kot_by_invoice_number(invoice_number):
+def get_ury_kot_by_invoice_number(invoice_number, type=None):
+    filters = {'invoice': invoice_number}
 
+    if type:
+        filters['type'] = type
+    
     ury_kots = frappe.get_all(
         'URY KOT',
-        filters={'invoice': invoice_number},
-        fields=['name', 'invoice', 'production'],
+        filters = filters,
+        fields=['name', 'invoice', 'production', 'type'],
     )
 
     for ury_kot in ury_kots:

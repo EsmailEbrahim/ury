@@ -192,6 +192,7 @@ def sync_order(
                 return {"status": "Failure"}
 
         invoice.customer = customer
+        invoice.custom_order_comments = comments
         if order_type:
             invoice.order_type = order_type
 
@@ -287,7 +288,8 @@ def sync_order(
             if app_array:
                 from ury_mosaic.ury_mosaic.api.ury_kot_generate import kot_execute
 
-                kot_execute(invoice.name, customer, table, items, past_item, comments)
+                if invoice.custom_is_confirmed == 1:
+                    kot_execute(invoice.name, customer, table, items, past_item, comments)
 
         except Exception as e:
             # If an exception occurs (e.g., "kot" app not found), it will be caught here without affect the code execution.
@@ -303,6 +305,78 @@ def sync_order(
         return invoice.as_dict()
     except Exception as ee:
         return ee
+
+
+def create_order_items(items, branch):
+    try:
+        menu = frappe.db.get_value(
+            "URY Restaurant", {"branch": branch}, "active_menu"
+        )
+
+        menu_items = {}
+        if menu:
+            menu_items_list = frappe.get_all(
+                "URY Menu Item",
+                filters={"parent": menu},
+                fields=["item", "item_name", "preparation_time", "parallel_preparation"],
+                order_by="item_name asc",
+            )
+            
+            menu_items = {
+                item["item"]: {
+                    "item_name": item["item_name"],
+                    "preparation_time": item["preparation_time"],
+                    "parallel_preparation": item["parallel_preparation"],
+                }
+                for item in menu_items_list
+            }
+
+        order_items = []
+        for item in items:
+            menu_item = menu_items.get(item.item_code, {})
+            order_item = {
+                "item_code": item.item_code,
+                "qty": item.qty,
+                "item_name": item.item_name,
+                "comments": item.comment,
+                "preparation_time": menu_item.get("preparation_time", 0),
+                "parallel_preparation": menu_item.get("parallel_preparation", False),
+            }
+            order_items.append(order_item)
+
+        return order_items
+    except Exception as e:
+        frappe.log_error(f"Error in create_order_items: {str(e)}")
+        frappe.throw("An error occurred while creating order items.")
+
+
+@frappe.whitelist()
+def confirm_order(invoice_name):
+    try:
+        apps = frappe.get_single("Installed Applications").installed_applications
+        app_array = [app.app_name for app in apps if app.app_name == "ury_mosaic"]
+
+        if app_array:
+            from ury_mosaic.ury_mosaic.api.ury_kot_generate import kot_execute
+
+            pos_invoice = frappe.get_doc("POS Invoice", invoice_name, as_dict = True)
+            customer = pos_invoice.customer
+            table = pos_invoice.restaurant_table
+            comments = pos_invoice.custom_order_comments
+            items = create_order_items(pos_invoice.items, pos_invoice.branch)
+
+            kot_execute(invoice_name, customer, table, items, [], comments)
+
+            pos_invoice.custom_is_confirmed = 1
+            pos_invoice.save()
+            frappe.db.commit()
+            
+            return {"status": "success"}
+
+    except Exception as e:
+        # If an exception occurs (e.g., "kot" app not found), it will be caught here without affect the code execution.
+        frappe.log_error(message=str(e), title="Error in Confirm Order")
+        return {"status": "error", "error": str(e)}
 
 
 @frappe.whitelist()
