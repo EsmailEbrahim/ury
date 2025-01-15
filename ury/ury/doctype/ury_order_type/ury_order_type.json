@@ -1,0 +1,92 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:order_type",
+ "creation": "2025-01-14 03:29:40.291396",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "disabled",
+  "order_type",
+  "order_type_arabic",
+  "require_a_table"
+ ],
+ "fields": [
+  {
+   "fieldname": "order_type",
+   "fieldtype": "Data",
+   "label": "Order Type",
+   "unique": 1
+  },
+  {
+   "fieldname": "order_type_arabic",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Order Type (Arabic)"
+  },
+  {
+   "default": "0",
+   "fieldname": "require_a_table",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Require a Table"
+  },
+  {
+   "default": "0",
+   "fieldname": "disabled",
+   "fieldtype": "Check",
+   "label": "Disabled"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-01-14 03:56:23.893697",
+ "modified_by": "Administrator",
+ "module": "URY",
+ "name": "URY Order Type",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "URY Restaurant Manager",
+   "select": 1,
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "URY Cashier",
+   "select": 1,
+   "share": 1
+  }
+ ],
+ "show_title_field_in_link": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "order_type_arabic",
+ "track_changes": 1
+}

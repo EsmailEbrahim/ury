@@ -8,6 +8,8 @@ def on_update(doc,method):
     aggregator_unpaid(doc,method)
     
 def sales_invoice_naming(doc, method):
+    if not doc.restaurant:
+        return
     pos_profile = frappe.db.get_value("POS Profile", doc.pos_profile, ["restaurant_prefix", "restaurant"], as_dict=True)
     restaurant = pos_profile.get("restaurant")
 

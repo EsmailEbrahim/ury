@@ -1,5 +1,6 @@
 {
  "actions": [],
+ "allow_rename": 1,
  "autoname": "prompt",
  "creation": "2023-09-13 23:41:41.934914",
  "default_view": "List",
@@ -111,7 +112,7 @@
  ],
  "image_field": "image",
  "links": [],
- "modified": "2024-08-13 12:54:39.805562",
+ "modified": "2024-12-29 11:50:08.392653",
  "modified_by": "Administrator",
  "module": "URY",
  "name": "URY Restaurant",
@@ -140,7 +141,7 @@
    "print": 1,
    "read": 1,
    "report": 1,
-   "role": "URY Manager",
+   "role": "URY Restaurant Manager",
    "select": 1,
    "share": 1,
    "write": 1

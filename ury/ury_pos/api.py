@@ -1,6 +1,7 @@
 import frappe
 from frappe import _
 from datetime import date, datetime, timedelta
+from frappe.utils import now_datetime
 
 
 @frappe.whitelist()
@@ -48,6 +49,82 @@ def getTable(room):
             table.custom_is_confirmed = 0
 
     return tables
+
+
+@frappe.whitelist()
+def get_order_status(table, invoice):
+    if not table or not invoice:
+        frappe.throw("Both 'table' and 'invoice' parameters are required.")
+
+    orders = frappe.get_all(
+        "URY KOT",
+        filters={"restaurant_table": table, "invoice": invoice},
+        fields=[
+            "name",
+            "order_status",
+            "restaurant_table",
+            "invoice",
+            "preparation_time",
+            "start_time_prep",
+        ]
+    )
+
+    if not orders:
+        return {"error": "No matching orders found"}
+
+    result = []
+    for order in orders:
+        start_time_prep = order.get("start_time_prep")
+        elapsed_time = 0
+        remaining_time = 0
+
+        if start_time_prep:
+            start_time_prep = frappe.utils.get_datetime(start_time_prep)
+            now = now_datetime()
+
+            if isinstance(start_time_prep, str):
+                start_time_prep = frappe.utils.get_datetime(start_time_prep)
+            elif isinstance(start_time_prep, timedelta):
+                start_time_prep = now - start_time_prep
+
+            if isinstance(start_time_prep, datetime) and isinstance(now, datetime):
+                delta = now - start_time_prep
+                elapsed_time = delta.total_seconds() / 60
+                remaining_time = max(order.get("preparation_time", 0) - elapsed_time, 0)
+
+        kot_items = frappe.get_all(
+            "URY KOT Items",
+            filters={"parent": order["name"]},
+            fields=["item_name", "quantity", "preparation_time", "striked"]
+        )
+
+        all_items_ready = True
+        items_details = []
+
+        for item in kot_items:
+            is_ready = item.get("striked", 0) == 1
+            if not is_ready:
+                all_items_ready = False
+            items_details.append({
+                "item_name": item.get("item_name"),
+                "quantity": item.get("quantity"),
+                "preparation_time": item.get("preparation_time"),
+                "is_ready": is_ready,
+            })
+
+        overall_status = "Served" if all_items_ready else order.get("order_status")
+
+        result.append({
+            "order_id": order["name"],
+            "table": order["restaurant_table"],
+            "invoice": order["invoice"],
+            "elapsed_time": round(elapsed_time, 2),
+            "remaining_time": round(remaining_time, 2),
+            "order_status": overall_status,
+            "items": items_details,
+        })
+
+    return result
 
 
 @frappe.whitelist()
