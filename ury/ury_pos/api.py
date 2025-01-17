@@ -510,9 +510,12 @@ def get_ury_kot_by_invoice_number(invoice_number, type=None):
         fields=['name', 'invoice', 'production', 'type'],
     )
 
+    kitchen_controller_roles = []
+
     for ury_kot in ury_kots:
-        production_silent_print_format = frappe.db.get_value('URY Production Unit', ury_kot['production'], 'custom_silent_print_format')
-        production_silent_print_type = frappe.db.get_value('URY Production Unit', ury_kot['production'], 'custom_silent_print_type')
+        production_silent_print_format = frappe.db.get_value('URY Production Unit', ury_kot['production'], 'silent_print_format')
+        production_silent_print_type = frappe.db.get_value('URY Production Unit', ury_kot['production'], 'silent_print_type')
+        kitchen_controller_roles.append(frappe.db.get_value('URY Production Unit', ury_kot['production'], 'role_responsible__for_serving_kot'))
         
         if production_silent_print_format and production_silent_print_type:
             ury_kot['production_silent_print_format'] = production_silent_print_format
@@ -521,7 +524,9 @@ def get_ury_kot_by_invoice_number(invoice_number, type=None):
             ury_kot['production_silent_print_format'] = None
             ury_kot['production_silent_print_type'] = None
     
-    return ury_kots
+    kitchen_controller_roles = list(set(kitchen_controller_roles))
+    
+    return {'ury_kots': ury_kots, 'kitchen_controller_roles': kitchen_controller_roles}
 
 
 @frappe.whitelist()
@@ -549,6 +554,8 @@ def getPosProfile():
         cashier = get_cashier.applicable_for_users[0].user
         qz_print = pos_profiles.qz_print
         silent_print = pos_profiles.custom_silent_print
+        enable_kitchen_controller_print = pos_profiles.custom_enable__kitchen_controller_print
+        controllers_silent_printers = []
         print_type = None
 
         for pos_profile in pos_profiles.printer_settings:
@@ -556,6 +563,9 @@ def getPosProfile():
                 printer = pos_profile.printer
                 bill_present = True
                 break
+        
+        if enable_kitchen_controller_print == 1:
+            controllers_silent_printers = pos_profiles.custom_kitchen_unit_controllers_silent_print
         
         if silent_print == 1:
             print_type = "silent"
@@ -594,6 +604,8 @@ def getPosProfile():
         "qz_print": qz_print,
         "qz_host": qz_host,
         "cashier_printer_name": cashier_printer_name,
+        "enable_kitchen_controller_print": enable_kitchen_controller_print,
+        "controllers_silent_printers": controllers_silent_printers,
         "silent_print": silent_print,
         "cashier_silent_print_format": cashier_silent_print_format,
         "cashier_silent_print_type": cashier_silent_print_type,
