@@ -687,5 +687,6 @@ def change_table_in_kot(invoice, new_table, branch):
         production_in_english = frappe.db.get_value("URY KOT", production, "production_in_english")
 
         # kot_channel = "{}_{}_{}".format("kot_update", branch, production)
-        kot_channel = "{}_{}_{}".format("kot_update", custom_branch_in_english, production_in_english)
+        # kot_channel = "{}_{}_{}".format("kot_update", custom_branch_in_english, production_in_english)
+        kot_channel = "{}_{}".format("kot_update", custom_branch_in_english)
         frappe.publish_realtime(kot_channel)

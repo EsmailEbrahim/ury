@@ -515,7 +515,7 @@ def get_ury_kot_by_invoice_number(invoice_number, type=None):
     for ury_kot in ury_kots:
         production_silent_print_format = frappe.db.get_value('URY Production Unit', ury_kot['production'], 'silent_print_format')
         production_silent_print_type = frappe.db.get_value('URY Production Unit', ury_kot['production'], 'silent_print_type')
-        kitchen_controller_roles.append(frappe.db.get_value('URY Production Unit', ury_kot['production'], 'role_responsible__for_serving_kot'))
+        kitchen_controller_roles.append(frappe.db.get_value('URY Production Unit', ury_kot['production'], 'role_responsible_for_serving_kot'))
         
         if production_silent_print_format and production_silent_print_type:
             ury_kot['production_silent_print_format'] = production_silent_print_format
