@@ -31,10 +31,10 @@ def get_custom_fields():
 				},
 				{
 					"fieldname": "order_type",
-					"fieldtype": "Select",
-					"default": "Dine In",
+					"fieldtype": "Link",
+					"default": "",
 					"label": "Order Type",
-					"options": "Dine In\nTake Away\nDelivery\nPhone In\nAggregators",
+					"options": "URY Order Type",
 					"insert_after": "order_info",
 					"translatable": 0
 				},
@@ -148,12 +148,10 @@ def get_custom_fields():
 				},
 				{
 					"fieldname": "order_type",
-					"fieldtype": "Select",
-					"default": "Dine In",
-					"options": "URY Restaurant",
-					"fetch_from": "customer.mobile_number",
+					"fieldtype": "Link",
+					"default": "",
 					"label": "Order Type",
-					"options": "Dine In\nTake Away\nDelivery\nPhone In\nAggregators",
+					"options": "URY Order Type",
 					"insert_after": "order_info",
 					"translatable": 0
 				},

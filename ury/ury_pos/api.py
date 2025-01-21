@@ -389,11 +389,26 @@ def getPosInvoice(status, limit, limit_start):
 
 @frappe.whitelist()
 def get_select_field_options():
-    options = frappe.get_meta("POS Invoice").get_field("order_type").options
-    if options:
-        return [{"name": option} for option in options.split("\n")]
-    else:
-        return []
+    # options = frappe.get_meta("POS Invoice").get_field("order_type").options
+    # if options:
+    #     return [{"name": option} for option in options.split("\n")]
+    # else:
+    #     return []
+    order_types = frappe.get_all(
+        "URY Order Type",
+        fields=["name", "order_type_arabic", "require_a_table", "default"],
+        filters={'disabled': 0}
+    )
+    
+    return [
+        {
+            "name": order_type.name,
+            "name_arabic": order_type.order_type_arabic,
+            "require_a_table": order_type.require_a_table,
+            "default": order_type.default
+        }
+        for order_type in order_types
+    ]
 
 
 @frappe.whitelist()
