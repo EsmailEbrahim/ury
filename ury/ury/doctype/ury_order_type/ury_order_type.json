@@ -10,7 +10,8 @@
   "default",
   "order_type",
   "order_type_arabic",
-  "require_a_table"
+  "require_a_table",
+  "default_table"
  ],
  "fields": [
   {
@@ -44,11 +45,19 @@
    "fieldtype": "Check",
    "in_list_view": 1,
    "label": "Default"
+  },
+  {
+   "depends_on": "eval: !doc.require_a_table",
+   "description": "Select a table to be the default table.",
+   "fieldname": "default_table",
+   "fieldtype": "Link",
+   "label": "Default Table",
+   "options": "URY Table"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-01-21 05:28:19.982153",
+ "modified": "2025-01-25 00:33:49.004836",
  "modified_by": "Administrator",
  "module": "URY",
  "name": "URY Order Type",

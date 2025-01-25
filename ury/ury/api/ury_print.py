@@ -124,17 +124,20 @@ def qz_print_update(invoice):
                 "POS Invoice", invoice, "invoice_printed", 1, update_modified=False
             )
 
-            frappe.db.set_value(
-                "URY Table", table, {"occupied": 0, "latest_invoice_time": None}
-            )
+            order_type = frappe.db.get_value("POS Invoice", invoice, "order_type")
+            require_a_table = frappe.db.get_value("URY Order Type", order_type, "require_a_table")
+            if require_a_table:
+                frappe.db.set_value(
+                    "URY Table", table, {"occupied": 0, "latest_invoice_time": None}
+                )
 
 
 @frappe.whitelist()
 def print_pos_page(doctype, name, print_format):
     data = {"name": name, "doctype": doctype, "print_format": print_format}
 
-    restaurant_table, branch, name = frappe.db.get_value(
-        "POS Invoice", name, ["restaurant_table", "branch", "name"]
+    restaurant_table, branch, name, order_type = frappe.db.get_value(
+        "POS Invoice", name, ["restaurant_table", "branch", "name", "order_type"]
     )
     print_channel = "{}_{}".format("print", branch)
     frappe.publish_realtime(print_channel, {"data": data})
@@ -145,11 +148,13 @@ def print_pos_page(doctype, name, print_format):
         frappe.db.set_value("POS Invoice", name, "invoice_printed", 1)
 
         if restaurant_table:
-            frappe.db.set_value(
-                "URY Table",
-                restaurant_table,
-                {"occupied": 0, "latest_invoice_time": None},
-            )
+            require_a_table = frappe.db.get_value("URY Order Type", order_type, "require_a_table")
+            if require_a_table:
+                frappe.db.set_value(
+                    "URY Table",
+                    restaurant_table,
+                    {"occupied": 0, "latest_invoice_time": None},
+                )
 
 
 @frappe.whitelist()

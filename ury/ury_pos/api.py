@@ -396,7 +396,7 @@ def get_select_field_options():
     #     return []
     order_types = frappe.get_all(
         "URY Order Type",
-        fields=["name", "order_type_arabic", "require_a_table", "default"],
+        fields=["name", "order_type_arabic", "require_a_table", "default", "default_table"],
         filters={'disabled': 0}
     )
     
@@ -405,10 +405,33 @@ def get_select_field_options():
             "name": order_type.name,
             "name_arabic": order_type.order_type_arabic,
             "require_a_table": order_type.require_a_table,
-            "default": order_type.default
+            "default": order_type.default,
+            "default_table": order_type.default_table
         }
         for order_type in order_types
     ]
+
+
+@frappe.whitelist()
+def selectedOrderTypeRequireTable(type):
+    require_a_table = frappe.db.get_value(
+        "URY Order Type",
+        type,
+        "require_a_table"
+    )
+    
+    return require_a_table
+
+
+@frappe.whitelist()
+def getDefaultTableForOrderType(type):
+    default_table = frappe.db.get_value(
+        "URY Order Type",
+        type,
+        "default_table"
+    )
+    
+    return default_table
 
 
 @frappe.whitelist()

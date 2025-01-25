@@ -152,15 +152,17 @@ def validate_price_list(doc, method):
 
 def restrict_existing_order(doc, event):
     if doc.restaurant_table:
-        invoice_exist = frappe.db.exists(
-            "POS Invoice",
-            {
-                "restaurant_table": doc.restaurant_table,
-                "docstatus": 0,
-                "invoice_printed": 0,
-            },
-        )
-        if invoice_exist:
-            frappe.throw(
-                ("Table {0} has an existing invoice").format(doc.restaurant_table)
+        require_a_table = frappe.db.get_value("URY Order Type", doc.order_type, "require_a_table")
+        if require_a_table:
+            invoice_exist = frappe.db.exists(
+                "POS Invoice",
+                {
+                    "restaurant_table": doc.restaurant_table,
+                    "docstatus": 0,
+                    "invoice_printed": 0,
+                },
             )
+            if invoice_exist:
+                frappe.throw(
+                    ("Table {0} has an existing invoice").format(doc.restaurant_table)
+                )

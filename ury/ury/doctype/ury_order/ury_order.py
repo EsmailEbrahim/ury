@@ -15,7 +15,7 @@ class URYOrder(Document):
 
 
 @frappe.whitelist()
-def get_order_invoice(table=None, invoiceNo=None, order_type=None, is_payment=None):
+def get_order_invoice(table=None, invoiceNo=None, order_type=None, is_payment=None, from_pos=False):
     """returns the active invoice linked to the given table"""
 
     if table:
@@ -32,10 +32,20 @@ def get_order_invoice(table=None, invoiceNo=None, order_type=None, is_payment=No
                 )
                
             else:
-                invoice_name = frappe.get_value(
-                    "POS Invoice",
-                    dict(restaurant_table=table, docstatus=0, invoice_printed=0),
-                )
+                if from_pos:
+                    invoice_name = frappe.get_value(
+                        "POS Invoice",
+                        dict(restaurant_table=table, docstatus=0, invoice_printed=0),
+                    )
+                else:
+                    require_a_table = frappe.db.get_value("URY Order Type", order_type, "require_a_table")
+                    if require_a_table:
+                        invoice_name = frappe.get_value(
+                            "POS Invoice",
+                            dict(restaurant_table=table, docstatus=0, invoice_printed=0),
+                        )
+                    else:
+                        invoice_name = None
                 
         # invoice_name = frappe.get_value("POS Invoice", dict(restaurant_table=table, docstatus=0, invoice_printed=0))
         branch, menu_name, restaurant = get_restaurant_and_menu_name(table)
@@ -297,9 +307,11 @@ def sync_order(
 
         # table status
         if invoice.invoice_printed == 0:
-            frappe.db.set_value(
-                "URY Table", table, {"occupied": 1, "latest_invoice_time": invoice.creation}
-            )
+            require_a_table = frappe.db.get_value("URY Order Type", order_type, "require_a_table")
+            if require_a_table:
+                frappe.db.set_value(
+                    "URY Table", table, {"occupied": 1, "latest_invoice_time": invoice.creation}
+                )
 
         invoice.db_set("owner", cashier)
         return invoice.as_dict()
@@ -550,11 +562,13 @@ def cancel_order(invoice_id, reason):
     pos_invoice = frappe.get_doc("POS Invoice", invoice_id)
 
     # Update table status
-    frappe.db.set_value(
-        "URY Table",
-        pos_invoice.restaurant_table,
-        {"occupied": 0, "latest_invoice_time": None},
-    )
+    require_a_table = frappe.db.get_value("URY Order Type", pos_invoice.order_type, "require_a_table")
+    if require_a_table:
+        frappe.db.set_value(
+            "URY Table",
+            pos_invoice.restaurant_table,
+            {"occupied": 0, "latest_invoice_time": None},
+        )
 
     try:
         apps = frappe.get_single("Installed Applications").installed_applications
