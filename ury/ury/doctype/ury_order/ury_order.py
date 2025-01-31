@@ -379,6 +379,10 @@ def confirm_order(invoice_name):
 
             kot_execute(invoice_name, customer, table, items, [], comments)
 
+            require_a_table = frappe.db.get_value("URY Order Type", pos_invoice.order_type, "require_a_table")
+            if not require_a_table:
+                pos_invoice.invoice_printed = 1
+
             pos_invoice.custom_is_confirmed = 1
             pos_invoice.save()
             frappe.db.commit()
