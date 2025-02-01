@@ -51,6 +51,7 @@ def getTable(room):
     return tables
 
 
+#########################################################################################
 @frappe.whitelist()
 def get_order_status(table, invoice):
     if not table or not invoice:
@@ -66,6 +67,8 @@ def get_order_status(table, invoice):
             "invoice",
             "preparation_time",
             "start_time_prep",
+            "date",
+            "type"
         ]
     )
 
@@ -79,15 +82,15 @@ def get_order_status(table, invoice):
         remaining_time = 0
 
         if start_time_prep:
-            start_time_prep = frappe.utils.get_datetime(start_time_prep)
-            now = now_datetime()
+            full_start_time = f"{order.get('date')} {start_time_prep}"
+            try:
+                start_time_prep = frappe.utils.get_datetime(full_start_time)
+            except Exception as e:
+                frappe.log_error(f"Error parsing datetime: {e}")
+                start_time_prep = None
 
-            if isinstance(start_time_prep, str):
-                start_time_prep = frappe.utils.get_datetime(start_time_prep)
-            elif isinstance(start_time_prep, timedelta):
-                start_time_prep = now - start_time_prep
-
-            if isinstance(start_time_prep, datetime) and isinstance(now, datetime):
+            if isinstance(start_time_prep, datetime):
+                now = frappe.utils.now_datetime()
                 delta = now - start_time_prep
                 elapsed_time = delta.total_seconds() / 60
                 remaining_time = max(order.get("preparation_time", 0) - elapsed_time, 0)
@@ -122,9 +125,11 @@ def get_order_status(table, invoice):
             "remaining_time": round(remaining_time, 2),
             "order_status": overall_status,
             "items": items_details,
+            "type": order["type"]
         })
 
     return result
+#########################################################################################
 
 
 @frappe.whitelist()
