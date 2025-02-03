@@ -596,7 +596,8 @@ def getPosProfile():
         get_cashier = frappe.get_doc("POS Profile", pos_profile_name)
         print_format = pos_profiles.print_format
         paid_limit=pos_profiles.paid_limit
-        cashier = get_cashier.applicable_for_users[0].user
+        # cashier = get_cashier.applicable_for_users[0].user
+        cashier = frappe.session.user
         qz_print = pos_profiles.qz_print
         silent_print = pos_profiles.custom_silent_print
         enable_kitchen_controller_print = pos_profiles.custom_enable__kitchen_controller_print
