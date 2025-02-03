@@ -115,7 +115,8 @@ def get_order_status(table, invoice):
                 "is_ready": is_ready,
             })
 
-        overall_status = "Served" if all_items_ready else order.get("order_status")
+        # overall_status = "Served" if all_items_ready else order.get("order_status")
+        overall_status = "Ready for Serving" if (all_items_ready and order.get("order_status") != "Served") else order.get("order_status")
 
         result.append({
             "order_id": order["name"],
@@ -125,7 +126,8 @@ def get_order_status(table, invoice):
             "remaining_time": round(remaining_time, 2),
             "order_status": overall_status,
             "items": items_details,
-            "type": order["type"]
+            "type": order["type"],
+            "isCollapsed": True,
         })
 
     return result
