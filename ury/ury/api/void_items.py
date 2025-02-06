@@ -37,32 +37,38 @@ def validate_manager(username, password, pos_profile):
 
 
 @frappe.whitelist()
-def process_void_item(invoice_no, item, quantity, accountability, notes, username, password, pos_profile, session_user):
+def process_void_item(invoice_no, items, accountability, notes, username, password, pos_profile, session_user):
     try:
         user_allowed = validate_manager(username, password, pos_profile)
         
         if user_allowed['success'] == True:
-            voided_item = {
-                "item": item['item'],
-                "rate": item['rate'],
-                "quantity": quantity,
-                "amount": item['rate'] * quantity,
-                "accountability": accountability,
-                "notes": notes,
-                "voided_by": username,
-                "session_user": session_user,
-            }
             invoice = frappe.get_doc("POS Invoice", invoice_no)
 
             if invoice.docstatus == 0:
-                invoice.append("custom_voided_items", voided_item)
+                for index, item in enumerate(items, start=1):
+                    if item['item'] == None or item['quantity'] == None:
+                        return {"success": False, "message": f"الرجاء اختيار العنصر والكمية في الصف: { index }"}
+
+                    current_item = item['item']
+                    current_quantity = item['quantity']
+                    voided_item = {
+                        "item": current_item['item'],
+                        "rate": current_item['rate'],
+                        "quantity": current_quantity,
+                        "amount": current_item['rate'] * current_quantity,
+                        "accountability": accountability,
+                        "notes": notes,
+                        "voided_by": username,
+                        "session_user": session_user,
+                    }
+                    invoice.append("custom_voided_items", voided_item)
+                
                 invoice.save()
                 return {"success": True}
-
             else:
                 return {"success": False, "message": f"لا يمكن إتلاف أي عنصر من هذه الفاتورة (حالة الفاتورة: {invoice.status})."}
         else:
             return user_allowed
 
     except Exception as e:
-        return {"success": False, "message": "حدث خطأ غير متوقع في معالجة الإتلاف."}
+        return {"success": False, "message": "حدث خطأ غير متوقع في  معالجة الإتلاف. رسالة الخطأ: " + str(e)}
