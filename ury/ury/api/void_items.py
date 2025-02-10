@@ -45,9 +45,18 @@ def process_void_item(invoice_no, items, accountability, notes, username, passwo
             invoice = frappe.get_doc("POS Invoice", invoice_no)
 
             if invoice.docstatus == 0:
+                seen_items = set()
                 for index, item in enumerate(items, start=1):
                     if item['item'] == None or item['quantity'] == None:
                         return {"success": False, "message": f"الرجاء اختيار العنصر والكمية في الصف: { index }"}
+
+                    if item['item']['qty'] < item['quantity']:
+                        return {"success": False, "message": f"الرجاء التأكد من الكمية في الصف: { index }"}
+                    
+                    current_item = item['item']['item']
+                    if current_item in seen_items:
+                        return {"success": False, "message": f"العنصر: {current_item}  مكرر في الصف: {index}"}
+                    seen_items.add(current_item)
 
                     current_item = item['item']
                     current_quantity = item['quantity']
