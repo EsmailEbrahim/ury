@@ -11,7 +11,7 @@
   "item_name",
   "qty",
   "rate",
-  "comments"
+  "comment"
  ],
  "fields": [
   {
@@ -46,9 +46,9 @@
    "read_only": 1
   },
   {
-   "fieldname": "comments",
+   "fieldname": "comment",
    "fieldtype": "Data",
-   "label": "Comments"
+   "label": "Comment"
   }
  ],
  "index_web_pages_for_search": 1,

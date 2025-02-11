@@ -239,7 +239,7 @@ def sync_order(
                 "item_code": item.item_code,
                 "item_name": item.item_name,
                 "qty": item.qty,
-                "comments": "",
+                "comment": "",
             }
             past_item.append(previous_item)
             
@@ -350,7 +350,7 @@ def create_order_items(items, branch):
                 "item_code": item.item_code,
                 "qty": item.qty,
                 "item_name": item.item_name,
-                "comments": item.comment,
+                "comment": item.comment,
                 "preparation_time": menu_item.get("preparation_time", 0),
                 "parallel_preparation": menu_item.get("parallel_preparation", False),
             }
@@ -575,11 +575,12 @@ def cancel_order(invoice_id, reason):
         )
 
     try:
-        apps = frappe.get_single("Installed Applications").installed_applications
-        app_array = [app.app_name for app in apps if app.app_name == "ury_mosaic"]
+        if pos_invoice.custom_is_confirmed:
+            apps = frappe.get_single("Installed Applications").installed_applications
+            app_array = [app.app_name for app in apps if app.app_name == "ury_mosaic"]
 
-        if app_array:
-            cancel_kot(invoice_id)
+            if app_array:
+                cancel_kot(invoice_id)
 
     except Exception as e:
         # If an exception occurs (e.g., "kot" app not found), it will be caught here without effecting execution
