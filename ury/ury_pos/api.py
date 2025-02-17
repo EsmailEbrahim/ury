@@ -708,7 +708,7 @@ def posOpening():
         if pos_opening.status == "Open" and pos_opening.docstatus == 1:
             flag = 0
     if flag == 1:
-        frappe.msgprint(title="Message", indicator="red", msg=("Please Open POS Entry"))
+        # frappe.msgprint(title="Message", indicator="red", msg=("Please Open POS Entry"))
         frappe.msgprint(title="نقطة البيع غير مفتوحة", indicator="red", msg=("الرجاء فتح نقطة البيع"))
     return flag
 
