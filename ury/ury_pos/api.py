@@ -725,30 +725,88 @@ def getAggregator():
 
 
 @frappe.whitelist()
-def getAggregatorItem(aggregator):
-    branchName = getBranch()
-    aggregatorItem = []
-    aggregatorItemList = []
-    priceList = frappe.db.get_value(
-        "Aggregator Settings",
-        {"customer": aggregator, "parent": branchName, "parenttype": "Branch"},
-        "price_list",
+def getAggregatorItem(aggregator, pos_profile):
+    menu_items = []
+    menu_items_with_image = []
+
+    user_role = frappe.get_roles()
+
+    pos_profile = frappe.get_doc("POS Profile", pos_profile)
+
+    cashier = any(
+        role.role in user_role for role in pos_profile.role_allowed_for_billing
     )
-    aggregatorItem = frappe.get_all(
-        "Item Price",
-        fields=["item_code", "item_name", "price_list_rate"],
-        filters={"selling": 1, "price_list": priceList},
-    )
-    aggregatorItemList = [
-        {
-            "item": item.item_code,
-            "item_name": item.item_name,
-            "rate": item.price_list_rate,
-            "item_imgae": frappe.db.get_value("Item", item.item, "image"),
-        }
-        for item in aggregatorItem
-    ]
-    return aggregatorItemList
+
+    if cashier:
+        branch_name = getBranch()
+
+        priceList = frappe.db.get_value(
+            "Aggregator Settings",
+            {"customer": aggregator, "parent": branch_name, "parenttype": "Branch"},
+            "price_list",
+        )
+
+        if not priceList:
+            frappe.throw(f"There is no Default Price List for aggregator {aggregator}, please select a default price list for aggregator.")
+
+        menu = frappe.db.get_value(
+            "Price List", {"name": priceList}, "restaurant_menu"
+        )
+
+        if not menu:
+            frappe.throw(f"There is no Restaurant Menu for aggregator {aggregator} and price list {priceList}")
+
+        if menu:
+            menu_items = frappe.get_all(
+                "URY Menu Item",
+                filters={"parent": menu},
+                fields=["item", "item_name", "rate", "special_dish", "disabled","course", "preparation_time", "parallel_preparation"],
+                order_by="item_name asc",
+            )
+
+            menu_items_with_image = [
+                {
+                    "item": item.item,
+                    "item_name": item.item_name,
+                    "rate": item.rate,
+                    "special_dish": item.special_dish,
+                    "disabled": item.disabled,
+                    "item_imgae": frappe.db.get_value("Item", item.item, "image"),
+                    "course":item.course,
+                    "preparation_time": item.preparation_time,
+                    "parallel_preparation": item.parallel_preparation,
+                }
+                for item in menu_items
+            ]
+    return menu_items_with_image
+
+
+# @frappe.whitelist()
+# def getAggregatorItem(aggregator):
+#     branchName = getBranch()
+#     aggregatorItem = []
+#     aggregatorItemList = []
+#     priceList = frappe.db.get_value(
+#         "Aggregator Settings",
+#         {"customer": aggregator, "parent": branchName, "parenttype": "Branch"},
+#         "price_list",
+#     )
+#     aggregatorItem = frappe.get_all(
+#         "Item Price",
+#         fields=["item_code", "item_name", "price_list_rate"],
+#         filters={"selling": 1, "price_list": priceList},
+#     )
+#     aggregatorItemList = [
+#         {
+#             "item": item.item_code,
+#             "item_name": item.item_name,
+#             "rate": item.price_list_rate,
+#             # "item_imgae": frappe.db.get_value("Item", item.item, "image"),
+#             "item_imgae": frappe.db.get_value("Item", item.item_code, "image"),
+#         }
+#         for item in aggregatorItem
+#     ]
+#     return aggregatorItemList
 
 @frappe.whitelist()
 def getAggregatorMOP(aggregator):

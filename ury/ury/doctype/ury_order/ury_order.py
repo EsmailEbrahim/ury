@@ -251,7 +251,24 @@ def sync_order(
             items = json.loads(items)
         invoice.items = []
         
-        menu = frappe.db.get_value("URY Menu", {"branch": invoice.branch}, "name")
+        if order_type == "Aggregators":
+            priceList = frappe.db.get_value(
+                "Aggregator Settings",
+                {"customer": customer, "parent": invoice.branch, "parenttype": "Branch"},
+                "price_list",
+            )
+
+            if not priceList:
+                frappe.throw(f"There is no Default Price List for aggregator {customer}, please select a default price list for aggregator.")
+
+            menu = frappe.db.get_value(
+                "Price List", {"name": priceList}, "restaurant_menu"
+            )
+
+            if not menu:
+                frappe.throw(f"There is no Restaurant Menu for aggregator {customer} and price list {priceList}")
+        else:
+            menu = frappe.db.get_value("URY Menu", {"branch": invoice.branch}, "name")
     
         for d in items:
             
@@ -319,11 +336,28 @@ def sync_order(
         return ee
 
 
-def create_order_items(items, branch):
+def create_order_items(items, branch, order_type, customer):
     try:
-        menu = frappe.db.get_value(
-            "URY Restaurant", {"branch": branch}, "active_menu"
-        )
+        if order_type == 'Aggregators':
+            priceList = frappe.db.get_value(
+                "Aggregator Settings",
+                {"customer": customer, "parent": branch, "parenttype": "Branch"},
+                "price_list",
+            )
+
+            if not priceList:
+                frappe.throw(f"There is no Default Price List for aggregator {customer}, please select a default price list for aggregator.")
+
+            menu = frappe.db.get_value(
+                "Price List", {"name": priceList}, "restaurant_menu"
+            )
+
+            if not menu:
+                frappe.throw(f"There is no Restaurant Menu for aggregator {customer} and price list {priceList}")
+        else:
+            menu = frappe.db.get_value(
+                "URY Restaurant", {"branch": branch}, "active_menu"
+            )
 
         menu_items = {}
         if menu:
@@ -375,7 +409,9 @@ def confirm_order(invoice_name):
             customer = pos_invoice.customer
             table = pos_invoice.restaurant_table
             comments = pos_invoice.custom_order_comments
-            items = create_order_items(pos_invoice.items, pos_invoice.branch)
+
+            # items = create_order_items(pos_invoice.items, pos_invoice.branch)
+            items = create_order_items(pos_invoice.items, pos_invoice.branch, pos_invoice.order_type, customer)
 
             kot_execute(invoice_name, customer, table, items, [], comments)
 
